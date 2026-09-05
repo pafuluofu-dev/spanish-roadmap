@@ -1,0 +1,69 @@
+.badge {
+  display: inline-block;
+  margin-inline-start: var(--spacing-sm);
+  padding: 0 0.3125rem;
+  border: var(--border-width) solid currentColor;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 0.0625rem;
+}
+
+/* Виды занятий */
+.badge--diagnostic {
+  color: var(--color-block-b-text);
+}
+
+.badge--check {
+  color: var(--color-block-a-text);
+}
+
+.badge--exam {
+  color: var(--color-block-a-text);
+  background: var(--color-block-a-surface);
+  border-color: var(--color-block-a);
+}
+
+.badge--custom {
+  color: var(--color-block-b-text);
+  border-style: dashed;
+}
+
+.badge--rest {
+  color: var(--color-text-muted);
+}
+
+/* Тихая пометка пропущенного занятия — без красных стен позора */
+.badge--missed {
+  color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+/* Текущая неделя */
+.badge--current {
+  color: var(--color-block-a-text);
+  background: var(--color-block-a-surface);
+  border-color: var(--color-block-a);
+}
+
+/* Статусы проверок */
+.badge--passed {
+  color: var(--color-success);
+}
+
+.badge--failed {
+  color: var(--color-text-muted);
+  border-style: dashed;
+}
+
+.badge--pending {
+  color: var(--color-text-muted);
+}
+
+/* Группа вопросов-догадок в теории */
+.badge--tentative {
+  color: var(--color-text-muted);
+}

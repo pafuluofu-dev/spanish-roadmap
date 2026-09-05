@@ -1,0 +1,110 @@
+.session {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: var(--spacing-sm) 0.625rem;
+  align-items: start;
+  padding: 0.75rem 0.875rem;
+  border-block-start: var(--border-width) solid var(--color-border);
+  transition: background-color var(--transition-fast);
+}
+
+.session:hover {
+  background: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+
+.session:first-child {
+  border-block-start: 0;
+}
+
+.session__title {
+  font-weight: 600;
+  font-size: var(--font-size-md);
+  line-height: 1.35;
+  cursor: pointer;
+}
+
+.session__date {
+  display: block;
+  margin-block-end: 0.125rem;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.session__note {
+  grid-column: 2;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.session__hours {
+  grid-column: 2;
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+.session__hours-value {
+  font-weight: 500;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  margin-inline-end: var(--spacing-sm);
+}
+
+.session__delete {
+  margin-block-start: 0.125rem;
+}
+
+.session--done .session__title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.session--done .session__note {
+  opacity: 0.7;
+}
+
+.session--rest {
+  grid-template-columns: 1fr;
+}
+
+.session__title--plain {
+  cursor: default;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.session--rest .session__note {
+  grid-column: 1;
+}
+
+@media (min-width: 48rem) {
+  .session {
+    grid-template-columns: 1.5rem 1fr 6.75rem;
+  }
+
+  .session__hours {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    text-align: end;
+    padding-block-start: 0.125rem;
+  }
+
+  .session__hours-value {
+    display: block;
+    margin-inline-end: 0;
+  }
+
+  .session--rest {
+    grid-template-columns: 1fr 6.75rem;
+  }
+
+  .session--rest .session__note {
+    grid-column: 1;
+  }
+}

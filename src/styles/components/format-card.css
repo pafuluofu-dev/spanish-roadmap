@@ -1,0 +1,9 @@
+.format-card {
+  padding: var(--spacing-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  max-width: 90ch;
+}

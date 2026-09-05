@@ -1,0 +1,55 @@
+.week {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.week--current {
+  border-color: var(--color-block-a);
+}
+
+.week__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  padding: 0.75rem 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.week__summary::marker {
+  color: var(--color-text-muted);
+}
+
+.week__name {
+  flex: 1 1 auto;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.week__progress {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.week__note {
+  padding: 0 0.875rem 0.625rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.week__empty {
+  padding: 0 0.875rem 0.75rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.week__sessions {
+  list-style: none;
+  border-block-start: var(--border-width) solid var(--color-border);
+}

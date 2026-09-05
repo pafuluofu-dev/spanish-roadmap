@@ -1,0 +1,21 @@
+.backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* Лейбл-кнопка со скрытым input[type=file]: фокус переносится с поля на рамку */
+.backup__import {
+  cursor: pointer;
+}
+
+.backup__import:has(.visually-hidden:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.backup__message {
+  margin-block-start: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

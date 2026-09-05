@@ -1,0 +1,77 @@
+/* Общий вид полей трёх маленьких форм: второй круг, результат проверки, журнал ошибок.
+   Один файл, чтобы не плодить три копии одинаковых правил. */
+
+.reserve-form,
+.error-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+.reserve-form {
+  padding: 0.625rem 0.875rem 0.875rem;
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.error-form {
+  margin-block-end: var(--spacing-md);
+}
+
+.reserve-form__field,
+.error-form__field,
+.check-form__field {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.reserve-form__field--grow,
+.error-form__field--grow,
+.check-form__field--grow {
+  flex: 1 1 16rem;
+}
+
+.reserve-form__label,
+.error-form__label,
+.check-form__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.reserve-form__input,
+.error-form__input,
+.check-form__input {
+  min-height: 2.25rem;
+  width: 100%;
+  padding: var(--spacing-xs) 0.625rem;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+}
+
+.button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.check-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--spacing-sm) var(--spacing-md);
+  margin-block-start: var(--spacing-sm);
+}
+
+.check-form__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.check-form__rule {
+  flex: 1 1 100%;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}

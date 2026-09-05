@@ -1,0 +1,100 @@
+.theory-page {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.theory-list {
+  display: grid;
+  list-style: none;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.theory-item {
+  display: grid;
+  gap: var(--spacing-sm);
+  padding: 0.75rem 0.875rem;
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.theory-item:first-child {
+  border-block-start: 0;
+}
+
+.theory-item__text {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.theory-item__number {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin-inline-end: var(--spacing-sm);
+}
+
+/* Трёхпозиционный тумблер: не знаю / формулировка / могу объяснить */
+.theory-item__control {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.theory-item__option {
+  display: inline-flex;
+}
+
+.theory-item__option + .theory-item__option .theory-item__option-label {
+  border-inline-start: var(--border-width) solid var(--color-border-input);
+}
+
+.theory-item__radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+}
+
+.theory-item__option-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.25rem 0.625rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.theory-item__option-label:hover {
+  color: var(--color-text);
+}
+
+.theory-item__radio:checked + .theory-item__option-label {
+  background: var(--color-block-a-surface);
+  color: var(--color-block-a-text);
+  font-weight: 600;
+}
+
+.theory-item__radio:focus-visible + .theory-item__option-label {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+@media (min-width: 48rem) {
+  .theory-item {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}

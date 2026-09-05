@@ -1,0 +1,114 @@
+.plan-page {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.plan-page__context {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.plan-page__context strong {
+  color: var(--color-text);
+}
+
+.page:focus {
+  outline: none;
+}
+
+.plan-block {
+  display: grid;
+  gap: 0.875rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.plan-block__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: 0.875rem 1rem 0.75rem;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-block-start: 4px solid var(--color-block-a);
+  border-radius: var(--radius-lg);
+}
+
+.plan-block--b .plan-block__header {
+  border-block-start-color: var(--color-block-b);
+}
+
+.plan-block--c .plan-block__header {
+  border-block-start-color: var(--color-text-muted);
+}
+
+.plan-block__header-main {
+  display: grid;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.plan-block__title {
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  line-height: 1.25;
+}
+
+.plan-block__meta {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+  margin-block-start: var(--spacing-xs);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.plan-block__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  max-width: 90ch;
+}
+
+/* В сжатом кольце процент нечитаем — на узких экранах он есть в соседней строке */
+.plan-block__header .progress-ring {
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.plan-block__header .progress-ring__text {
+  display: none;
+}
+
+@media (min-width: 30rem) {
+  .plan-block__header .progress-ring {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .plan-block__header .progress-ring__text {
+    display: inline;
+  }
+}
+
+.weeks {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.resources {
+  display: grid;
+  gap: var(--spacing-xs);
+  list-style: none;
+  font-size: var(--font-size-md);
+}
+
+.resources__note {
+  color: var(--color-text-muted);
+}

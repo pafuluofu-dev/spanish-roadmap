@@ -1,0 +1,35 @@
+.difference {
+  display: grid;
+  gap: var(--spacing-sm);
+  list-style: decimal;
+  padding-inline-start: 1.375rem;
+}
+
+.difference__item {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  max-width: 80ch;
+}
+
+.difference__item::marker {
+  font-family: var(--font-family-mono);
+  color: var(--color-text-muted);
+}
+
+.difference__text {
+  color: var(--color-text);
+}
+
+.difference__hours {
+  margin-inline-start: var(--spacing-sm);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.difference__footnote {
+  margin-block-start: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

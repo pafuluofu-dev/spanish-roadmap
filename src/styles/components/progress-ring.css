@@ -1,0 +1,15 @@
+.progress-ring {
+  flex-shrink: 0;
+}
+
+.progress-ring__fill {
+  transition: stroke-dashoffset 700ms ease;
+}
+
+.progress-ring__text {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  font-weight: 600;
+  fill: var(--color-text);
+}

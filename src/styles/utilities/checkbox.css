@@ -1,0 +1,17 @@
+/* Общий чекбокс-блок: занятия, повторы журнала, «Сегодня» */
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.25rem 0 0;
+  cursor: pointer;
+  accent-color: var(--color-block-a);
+}
+
+/* Цвет галочки следует блоку — как в эталоне (.track--b .step__checkbox) */
+.plan-block--b .checkbox {
+  accent-color: var(--color-block-b);
+}
+
+.plan-block--c .checkbox {
+  accent-color: var(--color-text-muted);
+}
