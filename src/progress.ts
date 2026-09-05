@@ -1,4 +1,4 @@
-import { ALL_SESSIONS, BLOCKS, WEEKS, type BlockId, type Session, type SessionKind, type Week } from './data/plan'
+import { ALL_SESSIONS, BLOCKS, WEEKS, type BlockId, type Session, type SessionKind, type SessionLink, type Week } from './data/plan'
 import { todayISO } from './dates'
 import type { AppState, CustomSession, ErrorEntry } from './storage'
 
@@ -55,6 +55,7 @@ export interface TodayItem {
   title: string
   minutes: number
   notes?: string
+  links?: SessionLink[]
 }
 
 export interface TodayView {

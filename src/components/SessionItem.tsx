@@ -1,4 +1,4 @@
-import type { SessionKind } from '../data/plan'
+import type { SessionKind, SessionLink } from '../data/plan'
 import { fmtDate, fmtWeekday } from '../dates'
 
 export interface SessionItemProps {
@@ -8,6 +8,7 @@ export interface SessionItemProps {
   title: string
   minutes: number
   notes?: string
+  links?: SessionLink[]
   checked: boolean
   missed: boolean
   onToggle: (id: string) => void
@@ -22,7 +23,25 @@ const KIND_LABEL: Partial<Record<SessionKind | 'custom', string>> = {
   custom: 'своё занятие',
 }
 
-export function SessionItem({ id, date, kind, title, minutes, notes, checked, missed, onToggle, onDelete }: SessionItemProps) {
+/** Ссылки на материалы занятия — вне label, чтобы клик по ссылке не переключал галочку */
+export function SessionLinks({ links }: { links?: SessionLink[] }) {
+  if (!links || links.length === 0) return null
+  return (
+    <ul className="session__links" aria-label="Материалы занятия">
+      {links.map((link) => (
+        <li key={link.url + link.label}>
+          <a className="session__link" href={link.url} target="_blank" rel="noopener noreferrer">
+            {link.label}
+            <span aria-hidden="true"> ↗</span>
+            <span className="visually-hidden"> (откроется в новой вкладке)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+export function SessionItem({ id, date, kind, title, minutes, notes, links, checked, missed, onToggle, onDelete }: SessionItemProps) {
   const noteId = notes ? `${id}-note` : undefined
 
   if (kind === 'rest') {
@@ -59,6 +78,7 @@ export function SessionItem({ id, date, kind, title, minutes, notes, checked, mi
           {notes}
         </p>
       )}
+      <SessionLinks links={links} />
       <p className="session__hours">
         <span className="session__hours-value">{checked ? 'сделано' : `${minutes} мин`}</span>
         {onDelete && !checked && (

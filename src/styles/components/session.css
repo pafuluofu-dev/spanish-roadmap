@@ -108,3 +108,35 @@
     grid-column: 1;
   }
 }
+
+/* Ссылки на материалы занятия — строкой под пояснением, вне label */
+.session__links {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--spacing-md);
+  list-style: none;
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+}
+
+.session__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--color-block-b-text);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.session__link:hover {
+  color: var(--color-text);
+}
+
+.session--done .session__link {
+  color: var(--color-text-muted);
+}
+
+.today-card .session__links {
+  margin-block-start: var(--spacing-xs);
+}

@@ -1,6 +1,14 @@
 import { addDays } from '../dates'
+import { bebrisLessonUrl } from './bebris'
+import { LINK_A1, LINK_DIALOGUES, LINK_EIGHT_WEEKS, LINK_FROM_ZERO, LINK_KHUKALENKO } from './materials'
 
 export type SessionKind = 'study' | 'check' | 'exam' | 'diagnostic' | 'rest'
+
+/** Ссылка на материал занятия: конкретный урок Бебриса, страница курса Udemy */
+export interface SessionLink {
+  label: string
+  url: string
+}
 
 export interface Session {
   id: string
@@ -12,6 +20,8 @@ export interface Session {
   minutes: number
   /** Одна строка пояснения, выводится серым под названием */
   notes?: string
+  /** Что открыть на этом занятии */
+  links?: SessionLink[]
 }
 
 export type BlockId = 'A' | 'B' | 'C'
@@ -246,17 +256,36 @@ const WEEK_SPECS: WeekSpec[] = [
 
 const STUDY_MINUTES = 75
 
+/** Какие курсы Udemy открывать в будний день — по фазе плана */
+function udemyLinks(spec: WeekSpec, dayIndex: number): SessionLink[] {
+  const links: SessionLink[] = [LINK_A1]
+  // «800 диалогов» начинаются с недели 3
+  if (spec.n >= 3) links.push(LINK_DIALOGUES)
+  // Короткие курсы-повторения: неделя 7 — Khukalenko, неделя 8 — «A1 за 8 недель»
+  if (spec.n === 7) links.push(LINK_KHUKALENKO)
+  if (spec.n === 8) links.push(LINK_EIGHT_WEEKS)
+  // «Испанский с нуля» — один раз, в пятницу второй недели («посмотреть быстро после первых недель»)
+  if (spec.n === 2 && dayIndex === 4) links.push(LINK_FROM_ZERO)
+  return links
+}
+
 function buildWeek(spec: WeekSpec): Week {
   const monday = addDays(START_DATE, 7 * (spec.n - 1))
   const id = (day: number) => `w${String(spec.n).padStart(2, '0')}-d${day}`
-  const sessions: Session[] = spec.days.map((title, index) => ({
-    id: id(index + 1),
-    date: addDays(monday, index),
-    kind: 'study',
-    title,
-    minutes: STUDY_MINUTES,
-    notes: SPLIT[spec.split],
-  }))
+  const sessions: Session[] = spec.days.map((title, index) => {
+    // Урок Бебриса в день: сквозной номер буднего дня = номер урока
+    const lesson = (spec.n - 1) * 5 + index + 1
+    const bebris = bebrisLessonUrl(lesson)
+    return {
+      id: id(index + 1),
+      date: addDays(monday, index),
+      kind: 'study',
+      title,
+      minutes: STUDY_MINUTES,
+      notes: SPLIT[spec.split],
+      links: [...(bebris ? [{ label: `Бебрис · урок ${lesson}`, url: bebris }] : []), ...udemyLinks(spec, index)],
+    }
+  })
   const saturday = spec.saturday
   sessions.push({
     id: saturday.kind === 'exam' ? `exam-${Math.ceil(spec.n / 4)}` : `check-${String(spec.n).padStart(2, '0')}`,
@@ -265,6 +294,7 @@ function buildWeek(spec: WeekSpec): Week {
     title: saturday.title,
     minutes: saturday.kind === 'exam' ? 60 : 45,
     notes: saturday.notes,
+    links: spec.n >= 3 ? [LINK_DIALOGUES] : [],
   })
   return { n: spec.n, from: monday, to: addDays(monday, 6), block: spec.block, focus: spec.focus, sessions, note: spec.note }
 }
