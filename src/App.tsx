@@ -18,6 +18,7 @@ import { HomePage } from './components/HomePage'
 import { PlanPage } from './components/PlanPage'
 import { ChecksPage } from './components/ChecksPage'
 import { TheoryPage } from './components/TheoryPage'
+import { CoursesPage } from './components/CoursesPage'
 import { ROUTE_META, useRoute } from './router'
 
 export default function App() {
@@ -52,6 +53,14 @@ export default function App() {
       if (sessions[id]) delete sessions[id]
       else sessions[id] = todayISO()
       return { ...previous, sessions }
+    })
+
+  const toggleLecture = (id: string) =>
+    setState((previous) => {
+      const lectures = { ...previous.lectures }
+      if (lectures[id]) delete lectures[id]
+      else lectures[id] = todayISO()
+      return { ...previous, lectures }
     })
 
   const saveCheckResult = (id: string, score: number, note: string) =>
@@ -164,6 +173,7 @@ export default function App() {
           />
         )}
         {route === 'theory' && <TheoryPage state={state} onSetTheory={setTheory} />}
+        {route === 'courses' && <CoursesPage state={state} onToggleLecture={toggleLecture} />}
       </div>
       {route !== 'home' && <OverallProgress state={state} />}
       <footer className="site-footer">

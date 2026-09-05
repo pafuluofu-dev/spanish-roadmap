@@ -1,0 +1,139 @@
+.courses-page {
+  display: grid;
+  gap: var(--spacing-xl);
+}
+
+.course {
+  display: grid;
+  gap: var(--spacing-md);
+}
+
+.course__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  min-width: 0;
+}
+
+.course__header-main {
+  display: grid;
+  gap: var(--spacing-xs);
+  min-width: 0;
+}
+
+.course__title {
+  font-size: var(--font-size-xl);
+  line-height: 1.25;
+}
+
+.course__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.course__link {
+  color: var(--color-block-b-text);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.course__link:hover {
+  color: var(--color-text);
+}
+
+.course__sections {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+/* Раздел курса — та же карточка, что неделя на плане; свёрнут, когда все лекции отмечены */
+.course-section {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.course-section__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-xs) var(--spacing-sm);
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.course-section__summary::marker {
+  color: var(--color-text-muted);
+}
+
+.course-section__name {
+  flex: 1 1 14rem;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.course-section__number {
+  margin-inline-end: var(--spacing-sm);
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  color: var(--color-block-b-text);
+}
+
+.course-section__progress {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.course-section__lectures {
+  list-style: none;
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.lecture {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: 0.625rem;
+  align-items: start;
+  padding: 0.5rem 0.875rem;
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.lecture:first-child {
+  border-block-start: 0;
+}
+
+.lecture__checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.25rem 0 0;
+  cursor: pointer;
+  accent-color: var(--color-block-b);
+}
+
+.lecture__title {
+  /* Строка невысокая, но кликабельная область — вся подпись: не меньше 44 px по высоте вместе с отступами */
+  display: block;
+  min-height: 1.75rem;
+  font-size: var(--font-size-md);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.lecture--done .lecture__title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

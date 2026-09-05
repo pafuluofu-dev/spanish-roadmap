@@ -17,7 +17,8 @@ export function AppNav({ route, state, theme, onToggleTheme }: AppNavProps) {
     { route: 'home', label: 'Обзор' },
     { route: 'plan', label: 'План', percent },
     { route: 'checks', label: 'Проверки' },
-    { route: 'theory', label: 'Теория' },
+    { route: 'theory', label: 'Умею сказать' },
+    { route: 'courses', label: 'Курсы' },
   ]
 
   return (

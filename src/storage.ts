@@ -43,6 +43,8 @@ export interface AppState {
   theory: Record<string, TheoryState>
   errors: ErrorEntry[]
   custom: CustomSession[]
+  /** id лекции курса → дата отметки (ISO); чек-лист программы Udemy на странице «Курсы» */
+  lectures: Record<string, string>
 }
 
 export const EMPTY_STATE: AppState = {
@@ -51,6 +53,7 @@ export const EMPTY_STATE: AppState = {
   theory: {},
   errors: [],
   custom: [],
+  lectures: {},
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -126,6 +129,8 @@ export function sanitizeState(raw: unknown): AppState {
     theory: sanitizeTheory(raw.theory),
     errors: sanitizeErrors(raw.errors),
     custom: sanitizeCustom(raw.custom),
+    // Поле появилось позже первого релиза: у старых копий его нет — это не ошибка, а пустой чек-лист
+    lectures: sanitizeSessions(raw.lectures),
   }
 }
 
