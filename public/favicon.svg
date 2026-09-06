@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#081028"/>
   <!-- ñ: буква — пурпур, тильда — циан; та же палитра, что у остальных трекеров -->
-  <path d="M19 52V28M19 37c0-8 26-8 26 0v15" stroke="#cb3cff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M17 17c4-6 9-2 13-1s9 5 14-2" stroke="#00c2ff" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <path d="M20 52V29M20 38c0-10 24-10 24 0v14" stroke="#cb3cff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M17 19c5-8 10-3 15-1s10 6 15-3" stroke="#00c2ff" stroke-width="7" stroke-linecap="round" fill="none"/>
 </svg>
