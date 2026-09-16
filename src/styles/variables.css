@@ -1,26 +1,28 @@
-/* Палитра DashDark X — как у «Маршрута verno/dev»: чернильно-синие фоны,
-   пурпурный primary с фирменным градиентом, циановый secondary.
-   Блок A = пурпур, блок B = циан, блок C = нейтральный.
-   Тема по умолчанию тёмная, светлая — по переключателю в шапке. */
+/* Палитра «Испания, приглушённая»: тёплый почти чёрный фон, кремовый текст,
+   красный и горчичный сняты с плаката, но убраны с максимальной яркости — чтобы не резало глаз.
+   Блок A = красный, блок B = горчичный, блок C = нейтральный. На заливках блоков текст тёмный.
+   Тема по умолчанию тёмная, светлая — те же оттенки на кремовом, затемнены до нормы контраста. */
 :root {
-  --color-background: #081028;
-  --color-surface: #0b1739;
-  --color-text: #ffffff;
-  --color-text-muted: #aeb9e1;
-  --color-border: #343b4f;
-  --color-block-a: #cb3cff;
-  --color-block-a-text: #e0b5ff;
-  --color-block-a-surface: #3b004d;
-  --color-block-b: #00c2ff;
-  --color-block-b-text: #b3ecff;
-  --color-block-b-surface: #004466;
-  --color-success: #14ca74;
-  --color-focus: #00c2ff;
-  --color-on-accent: #ffffff;
-  --color-border-input: #4a5568;
-  --gradient-primary: linear-gradient(128.49deg, #cb3cff 19.86%, #7f25fb 68.34%);
-  /* Для кнопок с белым текстом: сдвинут к фиолетовому, чтобы контраст ≥ 4.5 по всей длине */
-  --gradient-primary-strong: linear-gradient(128.49deg, #a531fd 19.86%, #7f25fb 68.34%);
+  --color-background: #1a1412;
+  --color-surface: #251d1a;
+  --color-text: #f6efe6;
+  --color-text-muted: #c4b7aa;
+  --color-border: #3a302a;
+  --color-block-a: #e0645e;
+  --color-block-a-text: #f0958f;
+  --color-block-a-surface: #3d1f1c;
+  --color-block-b: #d9a827;
+  --color-block-b-text: #e9c25a;
+  --color-block-b-surface: #3b2f10;
+  --color-success: #7fb069;
+  --color-focus: #e9c25a;
+  --color-on-accent: #1a1412;
+  --color-border-input: #7d6d61;
+  /* рамка интерактивных элементов — она и есть граница кнопки, поэтому светлее декоративной */
+  --color-border-control: #7d6d61;
+  --gradient-primary: linear-gradient(128.49deg, #e0645e 19.86%, #dd5a55 68.34%);
+  /* Кнопки: тёмный текст на красном, оба края градиента ≥ 4.5 */
+  --gradient-primary-strong: linear-gradient(128.49deg, #e0645e 19.86%, #dd5a55 68.34%);
 
   --font-family-display: 'Mona Sans', 'Work Sans', system-ui, sans-serif;
   --font-family-primary: 'Mona Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -53,19 +55,22 @@
 
 /* Светлая тема — по переключателю в шапке, те же оттенки на светлых нейтралах */
 :root[data-theme='light'] {
-  --color-background: #f7fafc;
+  --color-background: #faf6f0;
   --color-surface: #ffffff;
-  --color-text: #171923;
-  --color-text-muted: #4a5568;
-  --color-border: #d1dbf9;
-  --color-block-a: #a324cc;
-  --color-block-a-text: #7d1a99;
-  --color-block-a-surface: #f4e3ff;
-  --color-block-b: #177999;
-  --color-block-b-text: #135e80;
-  --color-block-b-surface: #e6f9ff;
-  --color-success: #0f9c5b;
-  --color-focus: #177999;
+  --color-text: #1f1714;
+  --color-text-muted: #5f544c;
+  --color-border: #e3d9cc;
+  --color-block-a: #b8332e;
+  --color-block-a-text: #9c2a26;
+  --color-block-a-surface: #fbe4e2;
+  --color-block-b: #8a6508;
+  --color-block-b-text: #6e5006;
+  --color-block-b-surface: #fbf0d0;
+  --color-success: #2f6b0a;
+  --color-focus: #9c2a26;
   --color-on-accent: #ffffff;
-  --color-border-input: #7e89ac;
+  --color-border-input: #8a7a6c;
+  --color-border-control: #8a7a6c;
+  --gradient-primary: linear-gradient(128.49deg, #b8332e 19.86%, #9c2a26 68.34%);
+  --gradient-primary-strong: linear-gradient(128.49deg, #b8332e 19.86%, #9c2a26 68.34%);
 }
