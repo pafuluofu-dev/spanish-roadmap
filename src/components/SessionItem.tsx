@@ -1,4 +1,5 @@
 import type { SessionKind, SessionLink } from '../data/plan'
+import type { SessionProgram } from '../data/program'
 import { fmtDate, fmtWeekday } from '../dates'
 
 export interface SessionItemProps {
@@ -9,6 +10,7 @@ export interface SessionItemProps {
   minutes: number
   notes?: string
   links?: SessionLink[]
+  program?: SessionProgram
   checked: boolean
   missed: boolean
   onToggle: (id: string) => void
@@ -41,7 +43,26 @@ export function SessionLinks({ links }: { links?: SessionLink[] }) {
   )
 }
 
-export function SessionItem({ id, date, kind, title, minutes, notes, links, checked, missed, onToggle, onDelete }: SessionItemProps) {
+/** «Что разбираем» — лекции курса Udemy A1 на этот день, списком под названием, как в программе курса */
+export function SessionProgramList({ program }: { program?: SessionProgram }) {
+  if (!program || program.lectures.length === 0) return null
+  return (
+    <div className="session__program">
+      <p className="session__program-topics">
+        Udemy A1 · {program.sections.length === 1 ? 'раздел' : 'разделы'} {program.sections.join(', ')} · что разбираем
+      </p>
+      <ul className="session__questions">
+        {program.lectures.map((lecture) => (
+          <li className="session__question" key={lecture.id}>
+            {lecture.title}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+export function SessionItem({ id, date, kind, title, minutes, notes, links, program, checked, missed, onToggle, onDelete }: SessionItemProps) {
   const noteId = notes ? `${id}-note` : undefined
 
   if (kind === 'rest') {
@@ -78,6 +99,7 @@ export function SessionItem({ id, date, kind, title, minutes, notes, links, chec
           {notes}
         </p>
       )}
+      <SessionProgramList program={program} />
       <SessionLinks links={links} />
       <p className="session__hours">
         <span className="session__hours-value">{checked ? 'сделано' : `${minutes} мин`}</span>

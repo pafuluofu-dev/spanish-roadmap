@@ -25,6 +25,8 @@
 @import './components/session.css';
 @import './components/forms.css';
 @import './components/check-card.css';
+@import './components/test-content.css';
+@import './components/print-sheet.css';
 @import './components/error-log.css';
 @import './components/theory.css';
 @import './components/courses.css';

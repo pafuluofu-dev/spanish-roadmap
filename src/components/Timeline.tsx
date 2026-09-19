@@ -1,8 +1,7 @@
 import { Fragment, type CSSProperties } from 'react'
-import { CHECKS } from '../data/checks'
-import { BLOCKS, GOAL_DATE, WEEKS, type BlockId } from '../data/plan'
+import { BLOCKS, type BlockId, type Week } from '../data/plan'
 import { fmtDate, MONTHS_SHORT, parseISO, todayISO } from '../dates'
-import { blockProgress, percentOf } from '../progress'
+import { blockProgress, percentOf, planOf } from '../progress'
 import type { AppState } from '../storage'
 
 interface TimelineProps {
@@ -12,19 +11,20 @@ interface TimelineProps {
 const BLOCK_MODIFIER: Record<BlockId, string> = { A: 'block-a', B: 'block-b', C: 'block-c' }
 
 /** Границы блока по датам его недель */
-function blockRange(blockWeeks: number[]): { from: string; to: string } {
-  const weeks = WEEKS.filter((week) => blockWeeks.includes(week.n))
-  return { from: weeks[0].from, to: weeks[weeks.length - 1].to }
+function blockRange(weeks: Week[], blockWeeks: number[]): { from: string; to: string } {
+  const own = weeks.filter((week) => blockWeeks.includes(week.n))
+  return { from: own[0].from, to: own[own.length - 1].to }
 }
 
 /** Блок, в чью неделю попадает дата (нужно, чтобы поставить ромб рубежа в свою полосу) */
-function blockOf(date: string): BlockId {
-  return WEEKS.find((week) => week.from <= date && date <= week.to)?.block ?? 'C'
+function blockOf(weeks: Week[], date: string): BlockId {
+  return weeks.find((week) => week.from <= date && date <= week.to)?.block ?? 'C'
 }
 
 export function Timeline({ state }: TimelineProps) {
-  const start = parseISO(WEEKS[0].from)
-  const end = parseISO(GOAL_DATE)
+  const plan = planOf(state)
+  const start = parseISO(plan.weeks[0].from)
+  const end = parseISO(plan.goal)
   const span = end.getTime() - start.getTime()
   const positionOf = (iso: string) =>
     Math.min(100, Math.max(0, ((parseISO(iso).getTime() - start.getTime()) / span) * 100))
@@ -36,14 +36,16 @@ export function Timeline({ state }: TimelineProps) {
     cursor.setMonth(cursor.getMonth() + 1)
   }
 
-  const exams = CHECKS.filter((check) => check.id.startsWith('exam')).map((check, index) => ({
-    ...check,
-    number: index + 1,
-    block: blockOf(check.date),
-  }))
+  const exams = plan.checks
+    .filter((check) => check.id.startsWith('exam'))
+    .map((check, index) => ({
+      ...check,
+      number: index + 1,
+      block: blockOf(plan.weeks, check.date),
+    }))
 
   const today = todayISO()
-  const showToday = today >= WEEKS[0].from && today <= GOAL_DATE
+  const showToday = today >= plan.weeks[0].from && today <= plan.goal
 
   return (
     <figure className="timeline">
@@ -57,10 +59,10 @@ export function Timeline({ state }: TimelineProps) {
       {/* График декоративен для скринридера — то же содержание словами */}
       <p className="visually-hidden">
         {BLOCKS.map((block) => {
-          const range = blockRange(block.weeks)
+          const range = blockRange(plan.weeks, block.weeks)
           return `Блок ${block.id}: ${fmtDate(range.from)} — ${fmtDate(range.to)}, сделано ${percentOf(blockProgress(block.id, state))} %. `
         }).join('')}
-        Двенадцать недель заканчиваются 29 ноября.
+        Двенадцать недель заканчиваются {fmtDate(plan.goal)}.
       </p>
 
       <div className="timeline__scroll">
@@ -71,8 +73,8 @@ export function Timeline({ state }: TimelineProps) {
                 {month.label}
               </span>
             ))}
-            <span className="timeline__month timeline__month--end" style={{ insetInlineStart: `${positionOf(GOAL_DATE)}%` }}>
-              A1 · 29 ноя
+            <span className="timeline__month timeline__month--end" style={{ insetInlineStart: `${positionOf(plan.goal)}%` }}>
+              A1 · {fmtDate(plan.goal)}
             </span>
             {showToday && (
               <span className="timeline__month timeline__month--today" style={{ insetInlineStart: `${positionOf(today)}%` }}>
@@ -82,7 +84,7 @@ export function Timeline({ state }: TimelineProps) {
           </div>
 
           {BLOCKS.map((block) => {
-            const range = blockRange(block.weeks)
+            const range = blockRange(plan.weeks, block.weeks)
             const left = positionOf(range.from)
             const width = positionOf(range.to) - left
             const percent = percentOf(blockProgress(block.id, state))

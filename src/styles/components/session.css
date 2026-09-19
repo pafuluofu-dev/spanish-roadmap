@@ -140,3 +140,39 @@
 .today-card .session__links {
   margin-block-start: var(--spacing-xs);
 }
+
+/* «Что разбираем» под занятием: лекции курса списком, та же строка «– пункт», что в программе курса */
+.session__program {
+  grid-column: 2;
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.session__program-topics {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.04em;
+  color: var(--color-block-a-text);
+}
+
+.session__questions {
+  display: grid;
+  gap: 0.125rem;
+  padding-inline-start: 1rem;
+  list-style: '– ';
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.session__question::marker {
+  color: var(--color-text-muted);
+}
+
+.session--done .session__questions {
+  color: var(--color-text-muted);
+}
+
+.today-card .session__program {
+  margin-block-start: var(--spacing-xs);
+}

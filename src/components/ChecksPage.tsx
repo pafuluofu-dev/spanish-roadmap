@@ -1,9 +1,13 @@
 import { useState } from 'react'
-import { CHECKS, SCORING_RULE, type Check } from '../data/checks'
+import { SCORING_RULE, type Check } from '../data/checks'
 import { PASS_THRESHOLD } from '../data/plan'
+import { testsFor } from '../data/testBank'
 import { fmtDateYear } from '../dates'
+import { planOf } from '../progress'
 import type { AppState, CheckResult } from '../storage'
 import { ErrorLog } from './ErrorLog'
+import { PrintSheet } from './PrintSheet'
+import { TestTasksList } from './TestTasksList'
 
 interface ChecksPageProps {
   state: AppState
@@ -15,6 +19,7 @@ interface ChecksPageProps {
 }
 
 export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onToggleRepeat, onDeleteError }: ChecksPageProps) {
+  const plan = planOf(state)
   return (
     <main className="checks-page">
       <header className="page-head">
@@ -22,7 +27,8 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
         <h1 className="page-head__title">Тесты недели и рубежи</h1>
         <p className="page-head__lead">
           Каждую субботу — без новой грамматики: повтор недели и небольшой тест самому себе вслух, лучше на диктофон. Баллы 0–100 ставите сами. Раз в
-          четыре недели — рубеж блока. Ниже {PASS_THRESHOLD} % — темы недели повторяются на следующей, а фразы уходят в журнал.
+          четыре недели — рубеж блока. Ниже {PASS_THRESHOLD} % — темы недели повторяются на следующей, а фразы уходят в журнал. Под каждым тестом —
+          задания с ответами; их можно распечатать листом без ответов, в PDF или на принтер.
         </p>
       </header>
       <section className="page-section" aria-labelledby="checks-title">
@@ -30,7 +36,7 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
           Список проверок
         </h2>
         <ol className="check-list">
-          {CHECKS.map((check) => {
+          {plan.checks.map((check) => {
             const result = state.checks[check.id]
             // Ключ зависит от наличия результата: после «удалить результат» форма пересоздаётся пустой
             return (
@@ -50,6 +56,26 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
   )
 }
 
+/* Задания шире формата: в check.format записано, как проводить сам тест (45 минут вслух),
+   а здесь лежат все задания по теме недели — с ответами, для тренировки. Свёрнуты, ответ у каждого
+   под своей кнопкой. Ничего не сохраняет. */
+function TestTasks({ checkId }: { checkId: string }) {
+  const items = testsFor(checkId)
+  if (items.length === 0) return null
+  const tasks = items.filter((item) => item.kind === 'task').length
+  const speak = items.length - tasks
+
+  return (
+    <details className="check-card__tasks-fold">
+      <summary className="check-card__form-summary">
+        Открыть задания · {tasks}
+        {speak > 0 && ` + ${speak} вслух`}
+      </summary>
+      <TestTasksList items={items} />
+    </details>
+  )
+}
+
 interface CheckCardProps {
   check: Check
   result: CheckResult | undefined
@@ -63,6 +89,9 @@ function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProp
   const statusModifier = result ? (passed ? 'badge--passed' : 'badge--failed') : 'badge--pending'
   const [score, setScore] = useState(result ? String(result.score) : '')
   const [note, setNote] = useState(result?.note ?? '')
+  // Пока лист в DOM, кнопка заблокирована: второй клик во время открытого диалога печати ни к чему
+  const [printing, setPrinting] = useState(false)
+  const items = testsFor(check.id)
   const scoreId = `${check.id}-score`
   const noteId = `${check.id}-noteinput`
 
@@ -82,6 +111,16 @@ function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProp
         <span className={`badge ${statusModifier}`}>{status}</span>
       </h3>
       <p className="check-card__scope">{check.scope}</p>
+      <TestTasks checkId={check.id} />
+      {items.length > 0 && (
+        <p className="check-card__actions">
+          <button type="button" className="button" disabled={printing} onClick={() => setPrinting(true)}>
+            {printing ? 'Готовлю лист…' : 'Распечатать задания'}
+          </button>
+          <span className="check-card__actions-hint">без ответов, в PDF или на принтер</span>
+        </p>
+      )}
+      {printing && <PrintSheet check={check} items={items} onDone={() => setPrinting(false)} />}
       {result && (
         <p className="check-card__result">
           <span className="check-card__score">

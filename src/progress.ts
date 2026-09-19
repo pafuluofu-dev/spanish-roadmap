@@ -1,6 +1,24 @@
-import { ALL_SESSIONS, BLOCKS, WEEKS, type BlockId, type Session, type SessionKind, type SessionLink, type Week } from './data/plan'
+import { buildChecks, type Check } from './data/checks'
+import { BLOCKS, buildPlan, type BlockId, type PlanCore, type Session, type SessionKind, type SessionLink, type Week } from './data/plan'
+import type { SessionProgram } from './data/program'
 import { todayISO } from './dates'
 import type { AppState, CustomSession, ErrorEntry } from './storage'
+
+/** План с проверками, посчитанный от выбранной даты начала */
+export interface Plan extends PlanCore {
+  checks: Check[]
+}
+
+let cachedPlan: Plan | undefined
+
+/** План для состояния: даты от state.planStart. Пересчитывается только при смене даты — страницы зовут это на каждом рендере */
+export function planOf(state: AppState): Plan {
+  if (!cachedPlan || cachedPlan.start !== state.planStart) {
+    const core = buildPlan(state.planStart)
+    cachedPlan = { ...core, checks: buildChecks(core.sessions, core.weeks) }
+  }
+  return cachedPlan
+}
 
 /** Отдых — событие без галочки, в прогресс не входит */
 export function isCountable(session: Session): boolean {
@@ -39,12 +57,12 @@ export function weekProgress(week: Week, state: AppState): Progress {
 
 export function blockProgress(blockId: BlockId, state: AppState): Progress {
   const weekNumbers = BLOCKS.find((b) => b.id === blockId)?.weeks ?? []
-  const sessions = WEEKS.filter((w) => weekNumbers.includes(w.n)).flatMap((w) => w.sessions)
+  const sessions = planOf(state).weeks.filter((w) => weekNumbers.includes(w.n)).flatMap((w) => w.sessions)
   return tally(sessions, state.custom.filter((c) => weekNumbers.includes(c.week)), state.sessions)
 }
 
 export function overallProgress(state: AppState): Progress {
-  return tally(ALL_SESSIONS, state.custom, state.sessions)
+  return tally(planOf(state).sessions, state.custom, state.sessions)
 }
 
 /** Занятие в карточке «Сегодня»: плановое или добавленное во «второй круг» */
@@ -56,6 +74,7 @@ export interface TodayItem {
   minutes: number
   notes?: string
   links?: SessionLink[]
+  program?: SessionProgram
 }
 
 export interface TodayView {
@@ -71,7 +90,7 @@ export interface TodayView {
 export function todayView(state: AppState): TodayView {
   const today = todayISO()
   const countable: TodayItem[] = [
-    ...ALL_SESSIONS.filter(isCountable),
+    ...planOf(state).sessions.filter(isCountable),
     ...state.custom.map((c) => ({ id: c.id, date: c.date, kind: 'custom' as const, title: c.title, minutes: c.minutes })),
   ].sort((a, b) => a.date.localeCompare(b.date))
   const ofToday = countable.filter((s) => s.date === today)
@@ -103,9 +122,9 @@ export function dueRepeats(errors: ErrorEntry[]): DueRepeat[] {
 }
 
 /** Неделя, в которую попадает сегодняшняя дата */
-export function currentWeek(): Week | undefined {
+export function currentWeek(state: AppState): Week | undefined {
   const today = todayISO()
-  return WEEKS.find((w) => w.from <= today && today <= w.to)
+  return planOf(state).weeks.find((w) => w.from <= today && today <= w.to)
 }
 
 /** Занятие пропущено: дата прошла, галочки нет */

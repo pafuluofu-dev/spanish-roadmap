@@ -1,6 +1,7 @@
 import { addDays } from '../dates'
 import { bebrisLessonUrl } from './bebris'
 import { LINK_A1, LINK_DIALOGUES, LINK_EIGHT_WEEKS, LINK_FROM_ZERO, LINK_KHUKALENKO } from './materials'
+import { programFor, type SessionProgram } from './program'
 
 export type SessionKind = 'study' | 'check' | 'exam' | 'diagnostic' | 'rest'
 
@@ -22,6 +23,8 @@ export interface Session {
   notes?: string
   /** Что открыть на этом занятии */
   links?: SessionLink[]
+  /** Лекции Udemy A1 на этот день — «что разбираем» под названием */
+  program?: SessionProgram
 }
 
 export type BlockId = 'A' | 'B' | 'C'
@@ -45,10 +48,15 @@ export interface Block {
   weeks: number[]
 }
 
-/** Понедельник первой недели */
-export const START_DATE = '2026-09-07'
-/** Конец 12-й недели — цель: крепкая база A1 */
-export const GOAL_DATE = '2026-11-29'
+/** Понедельник первой недели по умолчанию; свою дату владелец задаёт на обзоре, она хранится в состоянии */
+export const DEFAULT_START = '2026-09-07'
+/** Недель в плане; конец последней — цель: крепкая база A1 */
+export const PLAN_WEEKS = 12
+
+/** Воскресенье последней недели для заданной даты начала */
+export function goalOf(start: string): string {
+  return addDays(start, PLAN_WEEKS * 7 - 1)
+}
 /** Порог сдачи любой проверки, % */
 export const PASS_THRESHOLD = 80
 /** 12 недель × (5 × 75 мин + 45 мин субботы) ≈ 84 ч */
@@ -269,8 +277,8 @@ function udemyLinks(spec: WeekSpec, dayIndex: number): SessionLink[] {
   return links
 }
 
-function buildWeek(spec: WeekSpec): Week {
-  const monday = addDays(START_DATE, 7 * (spec.n - 1))
+function buildWeek(spec: WeekSpec, start: string): Week {
+  const monday = addDays(start, 7 * (spec.n - 1))
   const id = (day: number) => `w${String(spec.n).padStart(2, '0')}-d${day}`
   const sessions: Session[] = spec.days.map((title, index) => {
     // Урок Бебриса в день: сквозной номер буднего дня = номер урока
@@ -284,6 +292,7 @@ function buildWeek(spec: WeekSpec): Week {
       minutes: STUDY_MINUTES,
       notes: SPLIT[spec.split],
       links: [...(bebris ? [{ label: `Бебрис · урок ${lesson}`, url: bebris }] : []), ...udemyLinks(spec, index)],
+      program: programFor(id(index + 1)),
     }
   })
   const saturday = spec.saturday
@@ -299,7 +308,19 @@ function buildWeek(spec: WeekSpec): Week {
   return { n: spec.n, from: monday, to: addDays(monday, 6), block: spec.block, focus: spec.focus, sessions, note: spec.note }
 }
 
-export const WEEKS: Week[] = WEEK_SPECS.map(buildWeek)
+export interface PlanCore {
+  start: string
+  goal: string
+  weeks: Week[]
+  /** Плоский список всех занятий плана (без пользовательских) */
+  sessions: Session[]
+}
 
-/** Плоский список всех занятий плана (без пользовательских) */
-export const ALL_SESSIONS: Session[] = WEEKS.flatMap((week) => week.sessions)
+/** План от заданного понедельника. id занятий от даты не зависят, поэтому галочки и результаты переживают сдвиг */
+export function buildPlan(start: string): PlanCore {
+  const weeks = WEEK_SPECS.map((spec) => buildWeek(spec, start))
+  return { start, goal: goalOf(start), weeks, sessions: weeks.flatMap((week) => week.sessions) }
+}
+
+/** Названия занятий — для списка тем журнала ошибок; от даты не зависят */
+export const SESSION_TITLES: string[] = [...new Set(WEEK_SPECS.flatMap((spec) => [...spec.days, spec.saturday.title]))]

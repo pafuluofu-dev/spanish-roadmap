@@ -1,0 +1,148 @@
+/* Лист теста для печати: только задания, без ответов.
+   На экране лист лежит за кадром, но отрисован — display: none не даст браузеру
+   запросить шрифты, и в PDF текст ушёл бы запасным шрифтом. */
+.print-sheet {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: -300vw;
+  width: 180mm;
+  pointer-events: none;
+}
+
+@media print {
+  @page {
+    margin: 15mm;
+  }
+
+  /* Класс стоит на <html>: фон корня и его color-scheme: dark браузер красит на весь лист,
+     включая поля страницы, — без этого вокруг заданий выходили чёрные рамки */
+  html.is-printing {
+    background: #fff;
+    color: #000;
+    color-scheme: light;
+  }
+
+  html.is-printing body {
+    background: #fff;
+    color: #000;
+  }
+
+  /* Пока лист в DOM, печатается только он: всё остальное — навигация, карточки, формы — прячем */
+  html.is-printing body > :not(.print-sheet) {
+    display: none !important;
+  }
+
+  .print-sheet {
+    position: static;
+    inset: auto;
+    width: auto;
+    pointer-events: auto;
+    display: grid;
+    gap: 6mm;
+    background: #fff;
+    color: #000;
+    font-family: var(--font-family-primary);
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .print-sheet__head {
+    display: grid;
+    gap: 1.5mm;
+    padding-block-end: 4mm;
+    border-block-end: 0.4mm solid #000;
+  }
+
+  .print-sheet__title {
+    font-size: 16pt;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .print-sheet__meta,
+  .print-sheet__scope {
+    font-size: 10pt;
+    color: #333;
+  }
+
+  .print-sheet__fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2mm 10mm;
+    margin-block-start: 2mm;
+    font-size: 10pt;
+  }
+
+  .print-sheet__field {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2mm;
+  }
+
+  /* Линия для записи от руки */
+  .print-sheet__blank {
+    display: inline-block;
+    width: 40mm;
+    border-block-end: 0.3mm solid #000;
+  }
+
+  .print-sheet__blank--short {
+    width: 18mm;
+  }
+
+  .print-sheet__list {
+    display: grid;
+    gap: 4mm;
+    list-style: none;
+  }
+
+  .print-sheet__task {
+    /* Место под ответ от руки; задание не рвётся между страницами */
+    padding-block-end: 18mm;
+    border-block-end: 0.2mm dotted #999;
+    break-inside: avoid;
+  }
+
+  /* Устная часть: писать нечего, только галочка «сказал» */
+  .print-sheet__task--speak {
+    padding-block-end: 6mm;
+  }
+
+  .print-sheet__task-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 3mm;
+    margin-block-end: 1.5mm;
+  }
+
+  .print-sheet__task-id {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+    color: #555;
+  }
+
+  .print-sheet__task-title {
+    font-weight: 700;
+  }
+
+  .print-sheet__kind {
+    font-family: var(--font-family-mono);
+    font-size: 8pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #555;
+  }
+
+  .print-sheet__prompt {
+    font-size: 11pt;
+  }
+
+  .print-sheet__foot {
+    padding-block-start: 3mm;
+    border-block-start: 0.2mm solid #999;
+    font-size: 9pt;
+    color: #333;
+    word-break: break-all;
+  }
+}

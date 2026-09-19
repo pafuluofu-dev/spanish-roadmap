@@ -1,4 +1,4 @@
-import { ALL_SESSIONS, PASS_THRESHOLD, WEEKS } from './plan'
+import { PASS_THRESHOLD, type Session, type Week } from './plan'
 
 export interface Check {
   id: string
@@ -28,19 +28,23 @@ const SCOPE_BY_WEEK: Record<number, string> = {
   12: 'о себе, быт, вопросы без подготовки — итог A1',
 }
 
-/** Проверки — субботние занятия плана: тест недели или рубеж блока */
-export const CHECKS: Check[] = ALL_SESSIONS.filter((session) => session.kind === 'check' || session.kind === 'exam').map((session) => {
-  const week = WEEKS.find((item) => item.sessions.includes(session))
-  const n = week?.n ?? 0
-  return {
-    id: session.id,
-    date: session.date,
-    title: session.kind === 'exam' ? `Рубеж ${Math.ceil(n / 4)}` : `Тест недели ${n}`,
-    scope: SCOPE_BY_WEEK[n] ?? session.title,
-    format: session.kind === 'exam' ? 'три части по 3 минуты на диктофон, 60 мин с разбором' : 'повтор недели + тест самому себе, 45 мин',
-    threshold: PASS_THRESHOLD,
-  }
-})
+/** Проверки — субботние занятия плана: тест недели или рубеж блока. Даты — из плана, поэтому сдвигаются вместе с датой начала */
+export function buildChecks(sessions: Session[], weeks: Week[]): Check[] {
+  return sessions
+    .filter((session) => session.kind === 'check' || session.kind === 'exam')
+    .map((session) => {
+      const week = weeks.find((item) => item.sessions.includes(session))
+      const n = week?.n ?? 0
+      return {
+        id: session.id,
+        date: session.date,
+        title: session.kind === 'exam' ? `Рубеж ${Math.ceil(n / 4)}` : `Тест недели ${n}`,
+        scope: SCOPE_BY_WEEK[n] ?? session.title,
+        format: session.kind === 'exam' ? 'три части по 3 минуты на диктофон, 60 мин с разбором' : 'повтор недели + тест самому себе, 45 мин',
+        threshold: PASS_THRESHOLD,
+      }
+    })
+}
 
 /** Правило оценивания, показывается под формой результата */
 export const SCORING_RULE = 'Считай долю фраз, которые сказал без подсказки и без долгих пауз. Ошибка в окончании — полбалла, не ноль.'

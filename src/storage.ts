@@ -1,4 +1,6 @@
+import { DEFAULT_START } from './data/plan'
 import type { TheoryState } from './data/theory'
+import { parseISO, toISO } from './dates'
 
 const STATE_KEY = 'spanish-roadmap:v1'
 const THEME_KEY = 'spanish-roadmap:theme'
@@ -45,6 +47,8 @@ export interface AppState {
   custom: CustomSession[]
   /** id лекции курса → дата отметки (ISO); чек-лист программы Udemy на странице «Курсы» */
   lectures: Record<string, string>
+  /** Понедельник первой недели плана, ISO; от него считаются все даты занятий и проверок */
+  planStart: string
 }
 
 export const EMPTY_STATE: AppState = {
@@ -54,6 +58,7 @@ export const EMPTY_STATE: AppState = {
   errors: [],
   custom: [],
   lectures: {},
+  planStart: DEFAULT_START,
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -121,6 +126,12 @@ function sanitizeCustom(raw: unknown): CustomSession[] {
   )
 }
 
+/** Дата начала: строго ГГГГ-ММ-ДД и реально существующая, иначе — дата по умолчанию */
+function sanitizePlanStart(raw: unknown): string {
+  if (typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return DEFAULT_START
+  return toISO(parseISO(raw)) === raw ? raw : DEFAULT_START
+}
+
 export function sanitizeState(raw: unknown): AppState {
   if (!isRecord(raw)) return EMPTY_STATE
   return {
@@ -131,6 +142,8 @@ export function sanitizeState(raw: unknown): AppState {
     custom: sanitizeCustom(raw.custom),
     // Поле появилось позже первого релиза: у старых копий его нет — это не ошибка, а пустой чек-лист
     lectures: sanitizeSessions(raw.lectures),
+    // Тоже появилось позже первого релиза: у старых копий нет — план идёт от даты по умолчанию
+    planStart: sanitizePlanStart(raw.planStart),
   }
 }
 

@@ -1,6 +1,6 @@
-import { GOAL_DATE, PLANNED_HOURS } from '../data/plan'
-import { daysUntil, fmtHours } from '../dates'
-import { overallProgress, percentOf } from '../progress'
+import { PLANNED_HOURS } from '../data/plan'
+import { daysUntil, fmtDateYear, fmtHours } from '../dates'
+import { overallProgress, percentOf, planOf } from '../progress'
 import type { AppState } from '../storage'
 import { AnimatedNumber } from './AnimatedNumber'
 
@@ -9,11 +9,12 @@ interface HeroProps {
 }
 
 export function Hero({ state }: HeroProps) {
+  const plan = planOf(state)
   const progress = overallProgress(state)
   const percent = percentOf(progress)
 
   const stats: { value: number; format?: (value: number) => string; unit: string; label: string }[] = [
-    { value: daysUntil(GOAL_DATE), unit: 'дн', label: 'до конца 12 недель · 29 ноября 2026' },
+    { value: daysUntil(plan.goal), unit: 'дн', label: `до конца 12 недель · ${fmtDateYear(plan.goal)}` },
     {
       value: progress.doneMinutes,
       format: (minutes) => fmtHours(minutes / 60),

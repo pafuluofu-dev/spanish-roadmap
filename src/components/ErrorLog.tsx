@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ALL_SESSIONS } from '../data/plan'
+import { SESSION_TITLES } from '../data/plan'
 import { fmtDate, todayISO } from '../dates'
 import type { AppState, ErrorEntry } from '../storage'
 
@@ -13,7 +13,7 @@ interface ErrorLogProps {
 const OTHER = 'другое'
 
 /** Плоский список тем: названия всех занятий плана без повторов */
-const TOPIC_OPTIONS = [...new Set(ALL_SESSIONS.filter((session) => session.kind !== 'rest').map((session) => session.title))]
+const TOPIC_OPTIONS = SESSION_TITLES
 
 export function ErrorLog({ state, onAddError, onToggleRepeat, onDeleteError }: ErrorLogProps) {
   const open = state.errors.filter((entry) => !entry.done.every(Boolean))

@@ -76,3 +76,17 @@
 .check-card__form-summary:hover {
   color: var(--color-text);
 }
+
+.check-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-block-start: var(--spacing-xs);
+}
+
+.check-card__actions-hint {
+  font-family: var(--font-family-mono);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

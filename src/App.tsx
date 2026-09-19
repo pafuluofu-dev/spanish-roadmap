@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { addDays, todayISO } from './dates'
+import { addDays, fmtDate, fmtDateYear, todayISO } from './dates'
 import {
   EMPTY_STATE,
   loadState,
@@ -12,6 +12,7 @@ import {
   type Theme,
 } from './storage'
 import type { TheoryState } from './data/theory'
+import { planOf } from './progress'
 import { AppNav } from './components/AppNav'
 import { OverallProgress } from './components/OverallProgress'
 import { HomePage } from './components/HomePage'
@@ -27,6 +28,7 @@ export default function App() {
   const route = useRoute()
   const pageRef = useRef<HTMLDivElement>(null)
   const isFirstRender = useRef(true)
+  const plan = planOf(state)
 
   useEffect(() => saveState(state), [state])
 
@@ -122,6 +124,8 @@ export default function App() {
       return { ...previous, sessions, custom: previous.custom.filter((entry) => entry.id !== id) }
     })
 
+  const setPlanStart = (planStart: string) => setState((previous) => ({ ...previous, planStart }))
+
   const exportState = () => JSON.stringify({ v: 1, ...state }, null, 2)
 
   const importState = (raw: string): boolean => {
@@ -157,7 +161,14 @@ export default function App() {
       />
       <div className="page" ref={pageRef} tabIndex={-1}>
         {route === 'home' && (
-          <HomePage state={state} onToggleSession={toggleSession} onToggleRepeat={toggleRepeat} onExport={exportState} onImport={importState} />
+          <HomePage
+            state={state}
+            onToggleSession={toggleSession}
+            onToggleRepeat={toggleRepeat}
+            onSetPlanStart={setPlanStart}
+            onExport={exportState}
+            onImport={importState}
+          />
         )}
         {route === 'plan' && (
           <PlanPage state={state} onToggleSession={toggleSession} onAddCustom={addCustom} onDeleteCustom={deleteCustom} />
@@ -178,7 +189,8 @@ export default function App() {
       {route !== 'home' && <OverallProgress state={state} />}
       <footer className="site-footer">
         <p>
-          План — испанский с нуля до базы A1 за двенадцать недель (7 сентября — 29 ноября 2026): Бебрис, Udemy A1 для русскоговорящих, 800 диалогов, Anki.
+          План — испанский с нуля до базы A1 за двенадцать недель ({fmtDate(plan.start)} — {fmtDateYear(plan.goal)}): Бебрис, Udemy A1 для русскоговорящих, 800
+          диалогов, Anki.
           Порог любого теста — 80 %.
         </p>
         <p>Галочки, результаты тестов и журнал ошибок хранятся в этом браузере (localStorage). Для переноса между телефоном и ноутбуком — экспорт и импорт на обзоре.</p>

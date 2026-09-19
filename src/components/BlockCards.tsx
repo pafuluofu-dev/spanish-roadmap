@@ -1,6 +1,6 @@
-import { BLOCKS, WEEKS, type Block } from '../data/plan'
+import { BLOCKS, type Block } from '../data/plan'
 import { fmtHours, fmtRange } from '../dates'
-import { blockProgress, percentOf } from '../progress'
+import { blockProgress, percentOf, planOf } from '../progress'
 import type { AppState } from '../storage'
 import { ROUTE_META } from '../router'
 
@@ -15,6 +15,7 @@ const BLOCK_COLOR: Record<Block['id'], string> = {
 }
 
 export function BlockCards({ state }: BlockCardsProps) {
+  const plan = planOf(state)
   return (
     <section className="page-section" aria-labelledby="blocks-title">
       <div className="page-section__header">
@@ -25,8 +26,8 @@ export function BlockCards({ state }: BlockCardsProps) {
         {BLOCKS.map((block) => {
           const progress = blockProgress(block.id, state)
           const percent = percentOf(progress)
-          const first = WEEKS.find((week) => week.n === block.weeks[0])
-          const last = WEEKS.find((week) => week.n === block.weeks[block.weeks.length - 1])
+          const first = plan.weeks.find((week) => week.n === block.weeks[0])
+          const last = plan.weeks.find((week) => week.n === block.weeks[block.weeks.length - 1])
           return (
             <article className={`block-card block-card--${block.id.toLowerCase()}`} key={block.id}>
               <p className="eyebrow">

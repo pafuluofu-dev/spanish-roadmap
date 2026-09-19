@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { CHECKS } from '../data/checks'
-import { BLOCKS, PASS_THRESHOLD, WEEKS, type Block, type Week } from '../data/plan'
+import { BLOCKS, PASS_THRESHOLD, type Block, type Week } from '../data/plan'
 import { RESOURCES } from '../data/resources'
 import { fmtRange, todayISO } from '../dates'
-import { blockProgress, isMissed, percentOf, weekProgress } from '../progress'
+import { blockProgress, isMissed, percentOf, planOf, weekProgress } from '../progress'
 import type { AppState } from '../storage'
 import { ROUTE_META } from '../router'
 import { ProgressRing } from './ProgressRing'
@@ -24,12 +23,13 @@ const BLOCK_COLOR: Record<Block['id'], string> = {
 }
 
 export function PlanPage({ state, onToggleSession, onAddCustom, onDeleteCustom }: PlanPageProps) {
+  const plan = planOf(state)
   return (
     <main className="plan-page">
       <h1 className="visually-hidden">План на двенадцать недель</h1>
       <p className="plan-page__context">
         Ритм: <strong>пн–пт — занятие 60–90 минут</strong> (раскладка минут под каждым днём), суббота — повтор недели и тест самому себе, воскресенье — отдых.
-        Двенадцать недель: 07.09 → 29.11. Неделя сворачивается, когда все её занятия отмечены. <a href={ROUTE_META.home.hash}>Прогресс и «Сегодня» — на обзоре</a>.
+        Двенадцать недель: {fmtRange(plan.start, plan.goal)}. Неделя сворачивается, когда все её занятия отмечены. <a href={ROUTE_META.home.hash}>Прогресс и «Сегодня» — на обзоре</a>.
       </p>
       <Timeline state={state} />
       {BLOCKS.map((block) => (
@@ -58,11 +58,12 @@ interface BlockSectionProps {
 function BlockSection({ block, state, onToggleSession, onAddCustom, onDeleteCustom }: BlockSectionProps) {
   const progress = blockProgress(block.id, state)
   const percent = percentOf(progress)
-  const weeks = WEEKS.filter((week) => block.weeks.includes(week.n))
+  const plan = planOf(state)
+  const weeks = plan.weeks.filter((week) => block.weeks.includes(week.n))
   const titleId = `block-${block.id.toLowerCase()}-title`
   const weakTopics =
     block.id === 'C'
-      ? CHECKS.filter((check) => {
+      ? plan.checks.filter((check) => {
           const result = state.checks[check.id]
           return result && result.score < check.threshold
         })
@@ -146,6 +147,7 @@ function WeekCard({ week, state, onToggleSession, onAddCustom, onDeleteCustom }:
               minutes={session.minutes}
               notes={session.notes}
               links={session.links}
+              program={session.program}
               checked={!!state.sessions[session.id]}
               missed={isMissed(session, state)}
               onToggle={onToggleSession}
