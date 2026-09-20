@@ -51,8 +51,12 @@
   resize: vertical;
 }
 
+/* Недоступная кнопка: приглушённый цвет и рамка вместо прозрачности —
+   полупрозрачная надпись падала ниже нормы контраста в светлой теме */
 .button:disabled {
-  opacity: 0.55;
+  color: var(--color-text-muted);
+  background: var(--color-background);
+  border-color: var(--color-border);
   cursor: not-allowed;
 }
 

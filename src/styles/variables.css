@@ -5,6 +5,10 @@
 :root {
   --color-background: #1a1412;
   --color-surface: #251d1a;
+  /* Подложки «Сегодня» и карточек блоков: в тёмной теме — та же поверхность, в светлой — мягкий тон блока */
+  --color-surface-a: #251d1a;
+  --color-surface-b: #251d1a;
+  --color-surface-c: #251d1a;
   --color-text: #f6efe6;
   --color-text-muted: #c4b7aa;
   --color-border: #3a302a;
@@ -28,7 +32,7 @@
   --font-family-primary: 'Mona Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-family-mono: 'Work Sans', system-ui, sans-serif;
 
-  --font-size-xs: 0.6875rem;
+  --font-size-xs: 0.75rem;
   --font-size-sm: 0.8125rem;
   --font-size-md: 0.875rem;
   --font-size-base: 1rem;
@@ -53,24 +57,29 @@
   --transition-fast: 150ms ease;
 }
 
-/* Светлая тема — по переключателю в шапке, те же оттенки на светлых нейтралах */
+/* Светлая тема — по переключателю в шапке: тёплая бумага вместо чистого белого, красный и горчичный
+   приглушены; «Сегодня» и карточки блоков — на мягких подложках своего цвета (роза, песок, лён).
+   Все пары «текст/фон» ≥ 4.5, рамки и акценты ≥ 3. */
 :root[data-theme='light'] {
-  --color-background: #faf6f0;
-  --color-surface: #ffffff;
+  --color-background: #f8f3ec;
+  --color-surface: #fefbf6;
+  --color-surface-a: #fbeeea;
+  --color-surface-b: #faf3e0;
+  --color-surface-c: #f3eee6;
   --color-text: #1f1714;
   --color-text-muted: #5f544c;
-  --color-border: #e3d9cc;
-  --color-block-a: #b8332e;
+  --color-border: #e6dccf;
+  --color-block-a: #b33a34;
   --color-block-a-text: #9c2a26;
-  --color-block-a-surface: #fbe4e2;
+  --color-block-a-surface: #f9e2de;
   --color-block-b: #8a6508;
   --color-block-b-text: #6e5006;
-  --color-block-b-surface: #fbf0d0;
+  --color-block-b-surface: #f8edcc;
   --color-success: #2f6b0a;
   --color-focus: #9c2a26;
   --color-on-accent: #ffffff;
   --color-border-input: #8a7a6c;
   --color-border-control: #8a7a6c;
-  --gradient-primary: linear-gradient(128.49deg, #b8332e 19.86%, #9c2a26 68.34%);
-  --gradient-primary-strong: linear-gradient(128.49deg, #b8332e 19.86%, #9c2a26 68.34%);
+  --gradient-primary: linear-gradient(128.49deg, #b33a34 19.86%, #9c2a26 68.34%);
+  --gradient-primary-strong: linear-gradient(128.49deg, #b33a34 19.86%, #9c2a26 68.34%);
 }

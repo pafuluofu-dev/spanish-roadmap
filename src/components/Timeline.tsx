@@ -1,4 +1,5 @@
-import { Fragment, type CSSProperties } from 'react'
+import { Fragment, useRef, type CSSProperties } from 'react'
+import { useScrollFade } from './useScrollFade'
 import { BLOCKS, type BlockId, type Week } from '../data/plan'
 import { fmtDate, MONTHS_SHORT, parseISO, todayISO } from '../dates'
 import { blockProgress, percentOf, planOf } from '../progress'
@@ -22,6 +23,11 @@ function blockOf(weeks: Week[], date: string): BlockId {
 }
 
 export function Timeline({ state }: TimelineProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const fade = useScrollFade(scrollRef)
+  const viewportClass = ['timeline__viewport', fade.start ? 'timeline__viewport--fade-start' : '', fade.end ? 'timeline__viewport--fade-end' : '']
+    .filter(Boolean)
+    .join(' ')
   const plan = planOf(state)
   const start = parseISO(plan.weeks[0].from)
   const end = parseISO(plan.goal)
@@ -65,7 +71,8 @@ export function Timeline({ state }: TimelineProps) {
         Двенадцать недель заканчиваются {fmtDate(plan.goal)}.
       </p>
 
-      <div className="timeline__scroll">
+      <div className={viewportClass}>
+      <div className="timeline__scroll" ref={scrollRef}>
         <div className="timeline__chart" style={{ '--timeline-rows': BLOCKS.length } as CSSProperties} aria-hidden="true">
           <div className="timeline__months">
             {months.map((month) => (
@@ -109,6 +116,7 @@ export function Timeline({ state }: TimelineProps) {
             )
           })}
         </div>
+      </div>
       </div>
 
       <ol className="milestone-legend">

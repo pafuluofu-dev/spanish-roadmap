@@ -65,10 +65,6 @@
   text-decoration-thickness: 1px;
 }
 
-.session--done .session__note {
-  opacity: 0.7;
-}
-
 .session--rest {
   grid-template-columns: 1fr;
 }
@@ -121,8 +117,10 @@
 }
 
 .session__link {
-  display: inline-flex;
-  align-items: center;
+  /* inline-block, а не inline-flex: у многострочной ссылки стрелка остаётся за последним словом, а не улетает к правому краю */
+  display: inline-block;
+  padding-block: 0.3125rem;
+  line-height: 1.4;
   min-height: 2rem;
   color: var(--color-block-b-text);
   text-decoration: underline;
