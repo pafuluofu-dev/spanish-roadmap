@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-export type Route = 'home' | 'plan' | 'checks' | 'theory' | 'courses'
+export type Route = 'home' | 'plan' | 'checks' | 'theory' | 'courses' | 'notebook'
 
 export const ROUTE_META: Record<Route, { hash: string; title: string }> = {
   home: { hash: '#/', title: 'Маршрут: испанский' },
@@ -8,6 +8,7 @@ export const ROUTE_META: Record<Route, { hash: string; title: string }> = {
   checks: { hash: '#/checks', title: 'Тесты — Маршрут: испанский' },
   theory: { hash: '#/theory', title: 'Умею сказать — Маршрут: испанский' },
   courses: { hash: '#/courses', title: 'Курсы — Маршрут: испанский' },
+  notebook: { hash: '#/notebook', title: 'Заметки — Маршрут: испанский' },
 }
 
 function parseHash(hash: string): Route {
@@ -15,6 +16,7 @@ function parseHash(hash: string): Route {
   if (hash.startsWith(ROUTE_META.checks.hash)) return 'checks'
   if (hash.startsWith(ROUTE_META.theory.hash)) return 'theory'
   if (hash.startsWith(ROUTE_META.courses.hash)) return 'courses'
+  if (hash.startsWith(ROUTE_META.notebook.hash)) return 'notebook'
   return 'home'
 }
 

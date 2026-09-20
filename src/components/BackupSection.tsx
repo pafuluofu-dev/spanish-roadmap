@@ -24,14 +24,14 @@ export function BackupSection({ onExport, onImport }: BackupSectionProps) {
 
   const doImport = async (file: File | undefined) => {
     if (!file) return
-    if (!window.confirm('Импортировать копию? Текущие галочки, результаты проверок, теория и журнал ошибок будут заменены.')) {
+    if (!window.confirm('Импортировать копию? Текущие галочки, результаты проверок, теория, журнал ошибок и заметки будут заменены.')) {
       if (fileRef.current) fileRef.current.value = ''
       return
     }
     const raw = await file.text()
     setMessage(
       onImport(raw)
-        ? 'Готово: галочки, результаты проверок, теория и журнал ошибок применены.'
+        ? 'Готово: галочки, результаты проверок, теория, журнал ошибок и заметки применены.'
         : 'Не получилось разобрать файл — проверь, что это полный экспорт из этого раздела.',
     )
     if (fileRef.current) fileRef.current.value = ''
@@ -45,7 +45,7 @@ export function BackupSection({ onExport, onImport }: BackupSectionProps) {
           <span className="section-fold__hint" aria-hidden="true" />
         </summary>
         <p className="section-lead section-fold__lead">
-          Прогресс хранится в localStorage конкретного браузера. Экспорт скачивает всё (галочки, результаты проверок, теорию, журнал ошибок, второй круг) одним
+          Прогресс хранится в localStorage конкретного браузера. Экспорт скачивает всё (галочки, результаты проверок, теорию, журнал ошибок, второй круг, заметки) одним
           файлом JSON — импорт на другом устройстве заменяет им текущее состояние.
         </p>
         <div className="backup__actions">

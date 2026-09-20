@@ -1,6 +1,9 @@
+import type { UserNote } from './data/notebook'
 import { DEFAULT_START } from './data/plan'
 import type { TheoryState } from './data/theory'
 import { parseISO, toISO } from './dates'
+
+export type { UserNote } from './data/notebook'
 
 const STATE_KEY = 'spanish-roadmap:v1'
 const THEME_KEY = 'spanish-roadmap:theme'
@@ -49,6 +52,8 @@ export interface AppState {
   lectures: Record<string, string>
   /** Понедельник первой недели плана, ISO; от него считаются все даты занятий и проверок */
   planStart: string
+  /** Свои заметки владельца — страница «Заметки» */
+  notes: UserNote[]
 }
 
 export const EMPTY_STATE: AppState = {
@@ -59,6 +64,7 @@ export const EMPTY_STATE: AppState = {
   custom: [],
   lectures: {},
   planStart: DEFAULT_START,
+  notes: [],
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -132,6 +138,20 @@ function sanitizePlanStart(raw: unknown): string {
   return toISO(parseISO(raw)) === raw ? raw : DEFAULT_START
 }
 
+/* Поля не было в первых копиях, стартовых заметок нет — так что всё, кроме массива, читается как пустая тетрадь */
+function sanitizeNotes(raw: unknown): UserNote[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .filter((entry): entry is UserNote => isRecord(entry) && typeof entry.id === 'string' && typeof entry.title === 'string' && typeof entry.body === 'string')
+    .map((entry) => ({
+      id: entry.id,
+      title: entry.title,
+      body: entry.body,
+      createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : '',
+      updatedAt: typeof entry.updatedAt === 'string' ? entry.updatedAt : '',
+    }))
+}
+
 export function sanitizeState(raw: unknown): AppState {
   if (!isRecord(raw)) return EMPTY_STATE
   return {
@@ -144,6 +164,7 @@ export function sanitizeState(raw: unknown): AppState {
     lectures: sanitizeSessions(raw.lectures),
     // Тоже появилось позже первого релиза: у старых копий нет — план идёт от даты по умолчанию
     planStart: sanitizePlanStart(raw.planStart),
+    notes: sanitizeNotes(raw.notes),
   }
 }
 

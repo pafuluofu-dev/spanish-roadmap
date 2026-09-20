@@ -30,6 +30,9 @@
 @import './components/error-log.css';
 @import './components/theory.css';
 @import './components/courses.css';
+@import './components/math.css';
+@import './components/markdown.css';
+@import './components/notebook.css';
 @import './utilities/checkbox.css';
 @import './utilities/link-button.css';
 @import './utilities/visually-hidden.css';
