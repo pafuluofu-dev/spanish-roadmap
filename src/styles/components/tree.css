@@ -1,0 +1,172 @@
+/* Дерево плана: корень → блоки → недели → занятия. Папки — details, соединители нарисованы рамками,
+   цвет ветки едет по дереву через --tree-branch: его ставит элемент, а строка перебивает своим статусом. */
+.tree-page {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.tree-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tree-tools__filter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  min-height: 2rem;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+}
+
+.tree-tools__message {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.tree {
+  list-style: none;
+  min-width: 0;
+}
+
+/* Вложенный список: вертикаль ветки слева, от неё — черта к каждому узлу */
+.tree__list {
+  position: relative;
+  list-style: none;
+  padding-inline-start: 1.25rem;
+  margin-inline-start: 0.5rem;
+  border-inline-start: var(--border-width) solid var(--tree-branch, var(--color-border));
+}
+
+.tree__item {
+  position: relative;
+  list-style: none;
+}
+
+.tree__item::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1.25rem;
+  inset-block-start: 0.85rem;
+  width: 1rem;
+  border-block-start: var(--border-width) solid var(--tree-branch, var(--color-border));
+}
+
+/* Последний узел: вертикаль родителя гасится фоном ниже его черты — уголок вместо сквозной линии */
+.tree__item:last-child::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(-1.25rem - 1px);
+  inset-block-start: 0.85rem;
+  inset-block-end: 0;
+  width: 2px;
+  background: var(--color-background);
+}
+
+/* У корня родителя нет — ни черты, ни заглушки */
+/* У корня родителя нет — ни черты, ни заглушки. Второе правило по специфичности перебивает :last-child::after */
+.tree__item--root::before {
+  content: none;
+}
+
+.tree__item--root:last-child::after {
+  content: none;
+}
+
+.tree__item--branch-a {
+  --tree-branch: var(--color-block-a);
+}
+
+.tree__item--branch-b {
+  --tree-branch: var(--color-block-b);
+}
+
+.tree__item--branch-c {
+  --tree-branch: var(--color-text-muted);
+}
+
+/* Заголовок папки — та же строка, но жирнее: уровень виден и без значка раскрытия */
+/* Без display: flex — иначе summary перестаёт быть list-item и теряет треугольник раскрытия */
+.tree__summary {
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tree__summary::marker {
+  color: var(--color-text-muted);
+}
+
+.tree__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--spacing-xs) var(--spacing-sm);
+  min-height: 2rem;
+  width: 100%;
+  padding-block: 0.375rem;
+  font-size: var(--font-size-md);
+  line-height: 1.35;
+}
+
+.tree__marker {
+  flex: 0 0 auto;
+  width: 0.875rem;
+  font-size: var(--font-size-sm);
+  line-height: 1.35;
+  color: var(--tree-branch, var(--color-text-muted));
+}
+
+/* Базис 0, а не auto: иначе длинное название целиком уезжает на вторую строку вместо переноса внутри себя */
+.tree__label {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* На телефоне подпись уходит под название и встаёт по левому краю текста, а не под маркером */
+.tree__meta {
+  flex: 1 0 100%;
+  padding-inline-start: calc(0.875rem + var(--spacing-sm));
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 40rem) {
+  .tree__meta {
+    flex: 0 0 auto;
+    padding-inline-start: 0;
+  }
+}
+
+/* Статусы перебивают цвет ветки — правила идут после неё */
+.tree__row--done {
+  --tree-branch: var(--color-success);
+  color: var(--color-text-muted);
+}
+
+.tree__row--current {
+  --tree-branch: var(--color-focus);
+  font-weight: 600;
+}
+
+.tree__row--muted {
+  --tree-branch: var(--color-border-control);
+  color: var(--color-text-muted);
+}
+
+.tree__folder {
+  min-width: 0;
+}
+
+.tree__summary:hover {
+  color: var(--color-block-a-text);
+}
+
+.tree__empty {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+}

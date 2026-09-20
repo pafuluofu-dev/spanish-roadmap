@@ -22,6 +22,7 @@ export function AppNav({ route, state, theme, onToggleTheme }: AppNavProps) {
     { route: 'theory', label: 'Умею сказать' },
     { route: 'courses', label: 'Курсы' },
     { route: 'notebook', label: 'Заметки' },
+    { route: 'tree', label: 'Дерево' },
   ]
 
   const listRef = useRef<HTMLUListElement>(null)

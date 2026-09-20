@@ -34,6 +34,7 @@
 @import './components/markdown.css';
 @import './components/notebook.css';
 @import './components/plan-editor.css';
+@import './components/tree.css';
 @import './utilities/checkbox.css';
 @import './utilities/link-button.css';
 @import './utilities/visually-hidden.css';

@@ -26,6 +26,8 @@ import { ROUTE_META, useRoute } from './router'
 
 // Заметки владельца тянут KaTeX (~300 КБ) — грузим их только при заходе на страницу, чтобы галочки на плане открывались мгновенно
 const NotebookPage = lazy(() => import('./components/NotebookPage').then((module) => ({ default: module.NotebookPage })))
+// Дерево с генератором SVG нужно только на своей странице — держим его отдельным чанком, как заметки
+const TreePage = lazy(() => import('./components/TreePage').then((module) => ({ default: module.TreePage })))
 
 export default function App() {
   const [state, setState] = useState<AppState>(loadState)
@@ -212,6 +214,11 @@ export default function App() {
         {route === 'notebook' && (
           <Suspense fallback={<p className="page-loading">Загружаю заметки…</p>}>
             <NotebookPage notes={state.notes} onSave={saveNote} onDelete={deleteNote} />
+          </Suspense>
+        )}
+        {route === 'tree' && (
+          <Suspense fallback={<p className="page-loading">Строю дерево…</p>}>
+            <TreePage state={state} />
           </Suspense>
         )}
       </div>
