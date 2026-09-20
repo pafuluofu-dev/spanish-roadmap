@@ -31,7 +31,7 @@ export function HomePage({ state, onToggleSession, onToggleRepeat, onSetPlanStar
         <Timeline state={state} />
         <DifferenceSection />
         <FormatCard />
-        <PlanStartSection start={plan.start} goal={plan.goal} onChange={onSetPlanStart} />
+        <PlanStartSection start={plan.start} goal={plan.goal} weeks={plan.weeks.length} onChange={onSetPlanStart} />
         <BackupSection onExport={onExport} onImport={onImport} />
       </main>
     </>

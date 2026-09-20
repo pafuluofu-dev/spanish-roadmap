@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { addDays, fmtDate, fmtDateYear, todayISO } from './dates'
+import { addDays, fmtDate, fmtDateYear, fmtWeeks, todayISO } from './dates'
+import { hasEdits, type PlanEdits } from './planEdits'
 import {
   EMPTY_STATE,
   loadState,
@@ -130,6 +131,8 @@ export default function App() {
 
   const setPlanStart = (planStart: string) => setState((previous) => ({ ...previous, planStart }))
 
+  const setPlanEdits = (planEdits: PlanEdits) => setState((previous) => ({ ...previous, planEdits }))
+
   const saveNote = (note: UserNote) =>
     setState((previous) => ({
       ...previous,
@@ -152,6 +155,7 @@ export default function App() {
           Object.keys(next.theory).length +
           next.errors.length +
           next.custom.length +
+          (hasEdits(next.planEdits) ? 1 : 0) +
           // Заметки считаются, только если поле есть в файле: иначе это пустая тетрадь, а не содержимое копии
           (Array.isArray((parsed as { notes?: unknown }).notes) ? next.notes.length : 0) >
         0
@@ -185,7 +189,13 @@ export default function App() {
           />
         )}
         {route === 'plan' && (
-          <PlanPage state={state} onToggleSession={toggleSession} onAddCustom={addCustom} onDeleteCustom={deleteCustom} />
+          <PlanPage
+            state={state}
+            onToggleSession={toggleSession}
+            onAddCustom={addCustom}
+            onDeleteCustom={deleteCustom}
+            onSetPlanEdits={setPlanEdits}
+          />
         )}
         {route === 'checks' && (
           <ChecksPage
@@ -208,11 +218,13 @@ export default function App() {
       {route !== 'home' && <OverallProgress state={state} />}
       <footer className="site-footer">
         <p>
-          План — испанский с нуля до базы A1 за двенадцать недель ({fmtDate(plan.start)} — {fmtDateYear(plan.goal)}): Бебрис, Udemy A1 для русскоговорящих, 800
-          диалогов, Anki.
-          Порог любого теста — 80 %.
+          План — испанский с нуля до базы A1 за {fmtWeeks(plan.weeks.length)} ({fmtDate(plan.start)} — {fmtDateYear(plan.goal)}): Бебрис, Udemy A1 для
+          русскоговорящих, 800 диалогов, Anki. Порог любого теста — 80 %.
         </p>
-        <p>Галочки, результаты тестов, журнал ошибок и заметки хранятся в этом браузере (localStorage). Для переноса между телефоном и ноутбуком — экспорт и импорт на обзоре.</p>
+        <p>
+          Галочки, результаты тестов, журнал ошибок, заметки и правки плана хранятся в этом браузере (localStorage). Для переноса между телефоном и ноутбуком — экспорт и
+          импорт на обзоре.
+        </p>
       </footer>
     </div>
   )

@@ -1,6 +1,6 @@
 import { BLOCKS, type Block } from '../data/plan'
 import { fmtHours, fmtRange } from '../dates'
-import { blockProgress, percentOf, planOf } from '../progress'
+import { blockProgress, percentOf, weeksOfBlock } from '../progress'
 import type { AppState } from '../storage'
 import { ROUTE_META } from '../router'
 
@@ -15,7 +15,6 @@ const BLOCK_COLOR: Record<Block['id'], string> = {
 }
 
 export function BlockCards({ state }: BlockCardsProps) {
-  const plan = planOf(state)
   return (
     <section className="page-section" aria-labelledby="blocks-title">
       <div className="page-section__header">
@@ -26,12 +25,14 @@ export function BlockCards({ state }: BlockCardsProps) {
         {BLOCKS.map((block) => {
           const progress = blockProgress(block.id, state)
           const percent = percentOf(progress)
-          const first = plan.weeks.find((week) => week.n === block.weeks[0])
-          const last = plan.weeks.find((week) => week.n === block.weeks[block.weeks.length - 1])
+          // Номера недель — позиционные в итоговом плане: владелец мог добавить или переставить неделю
+          const own = weeksOfBlock(block.id, state)
+          const first = own[0]
+          const last = own[own.length - 1]
           return (
             <article className={`block-card block-card--${block.id.toLowerCase()}`} key={block.id}>
               <p className="eyebrow">
-                Блок {block.id} · недели {block.weeks[0]}–{block.weeks[block.weeks.length - 1]} · ≈{block.hours} ч
+                Блок {block.id} · недели {first ? `${first.n}–${last.n}` : '—'} · ≈{block.hours} ч
               </p>
               <h3 className="block-card__title">
                 <a href={ROUTE_META.plan.hash}>{block.title}</a>

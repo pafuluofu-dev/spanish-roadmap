@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { SessionKind, SessionLink } from '../data/plan'
 import type { SessionProgram } from '../data/program'
 import { fmtDate, fmtWeekday } from '../dates'
@@ -16,6 +17,8 @@ export interface SessionItemProps {
   onToggle: (id: string) => void
   /** Только у занятий «второго круга» */
   onDelete?: (id: string) => void
+  /** Ряд инструментов редактора плана — только в режиме редактирования */
+  tools?: ReactNode
 }
 
 const KIND_LABEL: Partial<Record<SessionKind | 'custom', string>> = {
@@ -62,7 +65,7 @@ export function SessionProgramList({ program }: { program?: SessionProgram }) {
   )
 }
 
-export function SessionItem({ id, date, kind, title, minutes, notes, links, program, checked, missed, onToggle, onDelete }: SessionItemProps) {
+export function SessionItem({ id, date, kind, title, minutes, notes, links, program, checked, missed, onToggle, onDelete, tools }: SessionItemProps) {
   const noteId = notes ? `${id}-note` : undefined
 
   if (kind === 'rest') {
@@ -76,6 +79,7 @@ export function SessionItem({ id, date, kind, title, minutes, notes, links, prog
           <span className="badge badge--rest">отдых</span>
         </p>
         {notes && <p className="session__note">{notes}</p>}
+        {tools}
       </li>
     )
   }
@@ -109,6 +113,7 @@ export function SessionItem({ id, date, kind, title, minutes, notes, links, prog
           </button>
         )}
       </p>
+      {tools}
     </li>
   )
 }

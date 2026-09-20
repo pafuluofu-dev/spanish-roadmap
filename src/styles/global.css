@@ -33,6 +33,7 @@
 @import './components/math.css';
 @import './components/markdown.css';
 @import './components/notebook.css';
+@import './components/plan-editor.css';
 @import './utilities/checkbox.css';
 @import './utilities/link-button.css';
 @import './utilities/visually-hidden.css';

@@ -1,4 +1,5 @@
 import { addDays } from '../dates'
+import { applyEdits, EMPTY_EDITS, type BaseFolder, type BaseNode, type PlanEdits } from '../planEdits'
 import { bebrisLessonUrl } from './bebris'
 import { LINK_A1, LINK_DIALOGUES, LINK_EIGHT_WEEKS, LINK_FROM_ZERO, LINK_KHUKALENKO } from './materials'
 import { programFor, type SessionProgram } from './program'
@@ -19,8 +20,10 @@ export interface Session {
   title: string
   /** Минуты: 75 обычное занятие (середина коридора 60–90), 45 субботний тест, 60 рубеж */
   minutes: number
-  /** Одна строка пояснения, выводится серым под названием */
+  /** Одна строка пояснения, выводится серым под названием: своё или раскладка минут недели */
   notes?: string
+  /** Только своё пояснение занятия, без подстановки раскладки — его показывает форма редактора */
+  ownNotes?: string
   /** Что открыть на этом занятии */
   links?: SessionLink[]
   /** Лекции Udemy A1 на этот день — «что разбираем» под названием */
@@ -30,6 +33,9 @@ export interface Session {
 export type BlockId = 'A' | 'B' | 'C'
 
 export interface Week {
+  /** `week-${n}` у встроенных недель, `f-…` у своих; от позиции не зависит */
+  id: string
+  /** Позиционный номер в итоговом плане — от него считаются даты */
   n: number
   from: string
   to: string
@@ -38,6 +44,8 @@ export interface Week {
   sessions: Session[]
   /** Пометка на карточке недели */
   note?: string
+  /** Раскладка минут — подпись будних занятий без своего пояснения; нужна форме редактора */
+  split?: string
 }
 
 export interface Block {
@@ -53,9 +61,15 @@ export const DEFAULT_START = '2026-09-07'
 /** Недель в плане; конец последней — цель: крепкая база A1 */
 export const PLAN_WEEKS = 12
 
-/** Воскресенье последней недели для заданной даты начала */
-export function goalOf(start: string): string {
-  return addDays(start, PLAN_WEEKS * 7 - 1)
+/** Воскресенье последней недели для заданной даты начала; недель в итоговом плане может быть не двенадцать */
+export function goalOf(start: string, weeks = PLAN_WEEKS): string {
+  return addDays(start, weeks * 7 - 1)
+}
+
+/** Исходный номер встроенной недели по id (`week-3` → 3); у своих недель его нет */
+export function baseWeekNumber(id: string): number | undefined {
+  const match = /^week-(\d+)$/.exec(id)
+  return match ? Number(match[1]) : undefined
 }
 /** Порог сдачи любой проверки, % */
 export const PASS_THRESHOLD = 80
@@ -277,36 +291,39 @@ function udemyLinks(spec: WeekSpec, dayIndex: number): SessionLink[] {
   return links
 }
 
-function buildWeek(spec: WeekSpec, start: string): Week {
-  const monday = addDays(start, 7 * (spec.n - 1))
+/** Встроенная неделя как папка наложения: без дат — они считаются от позиции в итоговом плане.
+    Ссылки на уроки Бебриса и Udemy привязаны к исходному номеру недели и остаются за занятием при любых перестановках */
+function baseFolder(spec: WeekSpec): BaseFolder {
   const id = (day: number) => `w${String(spec.n).padStart(2, '0')}-d${day}`
-  const sessions: Session[] = spec.days.map((title, index) => {
+  const nodes: BaseNode[] = spec.days.map((title, index) => {
     // Урок Бебриса в день: сквозной номер буднего дня = номер урока
     const lesson = (spec.n - 1) * 5 + index + 1
     const bebris = bebrisLessonUrl(lesson)
     return {
       id: id(index + 1),
-      date: addDays(monday, index),
-      kind: 'study',
-      title,
-      minutes: STUDY_MINUTES,
-      notes: SPLIT[spec.split],
-      links: [...(bebris ? [{ label: `Бебрис · урок ${lesson}`, url: bebris }] : []), ...udemyLinks(spec, index)],
-      program: programFor(id(index + 1)),
+      fields: {
+        kind: 'study',
+        title,
+        minutes: STUDY_MINUTES,
+        links: [...(bebris ? [{ label: `Бебрис · урок ${lesson}`, url: bebris }] : []), ...udemyLinks(spec, index)],
+      },
     }
   })
   const saturday = spec.saturday
-  sessions.push({
+  nodes.push({
     id: saturday.kind === 'exam' ? `exam-${Math.ceil(spec.n / 4)}` : `check-${String(spec.n).padStart(2, '0')}`,
-    date: addDays(monday, 5),
-    kind: saturday.kind,
-    title: saturday.title,
-    minutes: saturday.kind === 'exam' ? 60 : 45,
-    notes: saturday.notes,
-    links: spec.n >= 3 ? [LINK_DIALOGUES] : [],
+    fields: {
+      kind: saturday.kind,
+      title: saturday.title,
+      minutes: saturday.kind === 'exam' ? 60 : 45,
+      notes: saturday.notes,
+      links: spec.n >= 3 ? [LINK_DIALOGUES] : [],
+    },
   })
-  return { n: spec.n, from: monday, to: addDays(monday, 6), block: spec.block, focus: spec.focus, sessions, note: spec.note }
+  return { id: `week-${spec.n}`, fields: { block: spec.block, focus: spec.focus, note: spec.note, split: SPLIT[spec.split] }, nodes }
 }
+
+const BASE_FOLDERS: BaseFolder[] = WEEK_SPECS.map(baseFolder)
 
 export interface PlanCore {
   start: string
@@ -316,11 +333,39 @@ export interface PlanCore {
   sessions: Session[]
 }
 
-/** План от заданного понедельника. id занятий от даты не зависят, поэтому галочки и результаты переживают сдвиг */
-export function buildPlan(start: string): PlanCore {
-  const weeks = WEEK_SPECS.map((spec) => buildWeek(spec, start))
-  return { start, goal: goalOf(start), weeks, sessions: weeks.flatMap((week) => week.sessions) }
+/** План от заданного понедельника под правками владельца. id занятий от даты и позиции не зависят,
+    поэтому галочки и результаты переживают и сдвиг даты, и перестановки. Неделя на позиции N начинается
+    через 7·(N−1) дней от старта, занятие на позиции i — в i-й день недели (не позже воскресенья) */
+export function buildPlan(start: string, edits: PlanEdits = EMPTY_EDITS): PlanCore {
+  const weeks: Week[] = applyEdits(BASE_FOLDERS, edits).map((folder, index) => {
+    const monday = addDays(start, 7 * index)
+    // Пустая строка в правке — это «поле очищено»: undefined не переживает JSON.stringify, а пустое
+    // пояснение и пустая раскладка нам не нужны ни в подписи, ни в форме
+    const text = (value?: string) => (value && value.trim() ? value : undefined)
+    const split = text(folder.fields.split)
+    const sessions: Session[] = folder.nodes.map((node, position) => {
+      const ownNotes = text(node.fields.notes)
+      return {
+        id: node.id,
+        date: addDays(monday, Math.min(position, 6)),
+        ...node.fields,
+        ownNotes,
+        // Раскладка минут недели — подпись буднего занятия, пока у него нет своего пояснения
+        notes: ownNotes ?? (node.fields.kind === 'study' ? split : undefined),
+        program: node.added ? undefined : programFor(node.id),
+      }
+    })
+    return {
+      id: folder.id,
+      n: index + 1,
+      from: monday,
+      to: addDays(monday, 6),
+      block: folder.fields.block,
+      focus: folder.fields.focus,
+      sessions,
+      note: text(folder.fields.note),
+      split,
+    }
+  })
+  return { start, goal: goalOf(start, weeks.length), weeks, sessions: weeks.flatMap((week) => week.sessions) }
 }
-
-/** Названия занятий — для списка тем журнала ошибок; от даты не зависят */
-export const SESSION_TITLES: string[] = [...new Set(WEEK_SPECS.flatMap((spec) => [...spec.days, spec.saturday.title]))]

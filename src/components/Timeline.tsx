@@ -1,7 +1,7 @@
 import { Fragment, useRef, type CSSProperties } from 'react'
 import { useScrollFade } from './useScrollFade'
 import { BLOCKS, type BlockId, type Week } from '../data/plan'
-import { fmtDate, MONTHS_SHORT, parseISO, todayISO } from '../dates'
+import { fmtDate, fmtWeeks, MONTHS_SHORT, parseISO, todayISO } from '../dates'
 import { blockProgress, percentOf, planOf } from '../progress'
 import type { AppState } from '../storage'
 
@@ -11,10 +11,10 @@ interface TimelineProps {
 
 const BLOCK_MODIFIER: Record<BlockId, string> = { A: 'block-a', B: 'block-b', C: 'block-c' }
 
-/** Границы блока по датам его недель */
-function blockRange(weeks: Week[], blockWeeks: number[]): { from: string; to: string } {
-  const own = weeks.filter((week) => blockWeeks.includes(week.n))
-  return { from: own[0].from, to: own[own.length - 1].to }
+/** Границы блока по датам его недель; у блока без недель (владелец всё удалил) границ нет */
+function blockRange(weeks: Week[], blockId: BlockId): { from: string; to: string } | undefined {
+  const own = weeks.filter((week) => week.block === blockId)
+  return own.length > 0 ? { from: own[0].from, to: own[own.length - 1].to } : undefined
 }
 
 /** Блок, в чью неделю попадает дата (нужно, чтобы поставить ромб рубежа в свою полосу) */
@@ -29,6 +29,8 @@ export function Timeline({ state }: TimelineProps) {
     .filter(Boolean)
     .join(' ')
   const plan = planOf(state)
+  // Без единой недели шкале нечего показывать (хуки выше уже вызваны)
+  if (plan.weeks.length === 0) return null
   const start = parseISO(plan.weeks[0].from)
   const end = parseISO(plan.goal)
   const span = end.getTime() - start.getTime()
@@ -43,7 +45,7 @@ export function Timeline({ state }: TimelineProps) {
   }
 
   const exams = plan.checks
-    .filter((check) => check.id.startsWith('exam'))
+    .filter((check) => check.kind === 'exam')
     .map((check, index) => ({
       ...check,
       number: index + 1,
@@ -65,10 +67,11 @@ export function Timeline({ state }: TimelineProps) {
       {/* График декоративен для скринридера — то же содержание словами */}
       <p className="visually-hidden">
         {BLOCKS.map((block) => {
-          const range = blockRange(plan.weeks, block.weeks)
+          const range = blockRange(plan.weeks, block.id)
+          if (!range) return ''
           return `Блок ${block.id}: ${fmtDate(range.from)} — ${fmtDate(range.to)}, сделано ${percentOf(blockProgress(block.id, state))} %. `
         }).join('')}
-        Двенадцать недель заканчиваются {fmtDate(plan.goal)}.
+        {fmtWeeks(plan.weeks.length)} заканчиваются {fmtDate(plan.goal)}.
       </p>
 
       <div className={viewportClass}>
@@ -91,7 +94,8 @@ export function Timeline({ state }: TimelineProps) {
           </div>
 
           {BLOCKS.map((block) => {
-            const range = blockRange(plan.weeks, block.weeks)
+            const range = blockRange(plan.weeks, block.id)
+            if (!range) return null
             const left = positionOf(range.from)
             const width = positionOf(range.to) - left
             const percent = percentOf(blockProgress(block.id, state))

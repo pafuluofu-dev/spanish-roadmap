@@ -53,6 +53,15 @@ export function fmtRange(fromISO: string, toISOStr: string): string {
   return `${pad(fromISO)}–${pad(toISOStr)}`
 }
 
+/** «12 недель», «21 неделя», «22 недели» — недель в плане стало переменное число, склонение считаем */
+export function fmtWeeks(n: number): string {
+  const last = n % 10
+  const tens = n % 100
+  if (last === 1 && tens !== 11) return `${n} неделя`
+  if (last >= 2 && last <= 4 && (tens < 12 || tens > 14)) return `${n} недели`
+  return `${n} недель`
+}
+
 /** «12,5» — часы с запятой, без хвоста «,0» */
 export function fmtHours(hours: number): string {
   const rounded = Math.round(hours * 10) / 10

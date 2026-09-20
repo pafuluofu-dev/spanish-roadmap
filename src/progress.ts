@@ -1,5 +1,5 @@
 import { buildChecks, type Check } from './data/checks'
-import { BLOCKS, buildPlan, type BlockId, type PlanCore, type Session, type SessionKind, type SessionLink, type Week } from './data/plan'
+import { buildPlan, type BlockId, type PlanCore, type Session, type SessionKind, type SessionLink, type Week } from './data/plan'
 import type { SessionProgram } from './data/program'
 import { todayISO } from './dates'
 import type { AppState, CustomSession, ErrorEntry } from './storage'
@@ -10,14 +10,22 @@ export interface Plan extends PlanCore {
 }
 
 let cachedPlan: Plan | undefined
+let cachedEdits: AppState['planEdits'] | undefined
 
-/** План для состояния: даты от state.planStart. Пересчитывается только при смене даты — страницы зовут это на каждом рендере */
+/** План для состояния: даты от state.planStart под правками state.planEdits. Пересчитывается только при их смене —
+    страницы зовут это на каждом рендере; состояние иммутабельно, поэтому правки сравниваются по ссылке */
 export function planOf(state: AppState): Plan {
-  if (!cachedPlan || cachedPlan.start !== state.planStart) {
-    const core = buildPlan(state.planStart)
+  if (!cachedPlan || cachedPlan.start !== state.planStart || cachedEdits !== state.planEdits) {
+    const core = buildPlan(state.planStart, state.planEdits)
     cachedPlan = { ...core, checks: buildChecks(core.sessions, core.weeks) }
+    cachedEdits = state.planEdits
   }
   return cachedPlan
+}
+
+/** Занятия «второго круга» привязаны к исходному номеру встроенной недели; у своих недель их нет */
+export function customOf(week: Week, custom: CustomSession[]): CustomSession[] {
+  return custom.filter((entry) => `week-${entry.week}` === week.id)
 }
 
 /** Отдых — событие без галочки, в прогресс не входит */
@@ -52,13 +60,21 @@ function tally(sessions: Session[], custom: CustomSession[], doneMap: Record<str
 }
 
 export function weekProgress(week: Week, state: AppState): Progress {
-  return tally(week.sessions, state.custom.filter((c) => c.week === week.n), state.sessions)
+  return tally(week.sessions, customOf(week, state.custom), state.sessions)
+}
+
+/** Недели блока — по полю block итогового плана, а не по списку номеров: владелец мог переставить или добавить неделю */
+export function weeksOfBlock(blockId: BlockId, state: AppState): Week[] {
+  return planOf(state).weeks.filter((w) => w.block === blockId)
 }
 
 export function blockProgress(blockId: BlockId, state: AppState): Progress {
-  const weekNumbers = BLOCKS.find((b) => b.id === blockId)?.weeks ?? []
-  const sessions = planOf(state).weeks.filter((w) => weekNumbers.includes(w.n)).flatMap((w) => w.sessions)
-  return tally(sessions, state.custom.filter((c) => weekNumbers.includes(c.week)), state.sessions)
+  const weeks = weeksOfBlock(blockId, state)
+  return tally(
+    weeks.flatMap((w) => w.sessions),
+    weeks.flatMap((w) => customOf(w, state.custom)),
+    state.sessions,
+  )
 }
 
 export function overallProgress(state: AppState): Progress {

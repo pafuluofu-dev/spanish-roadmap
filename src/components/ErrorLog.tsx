@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { SESSION_TITLES } from '../data/plan'
 import { fmtDate, todayISO } from '../dates'
+import { planOf } from '../progress'
 import type { AppState, ErrorEntry } from '../storage'
 
 interface ErrorLogProps {
@@ -12,12 +12,11 @@ interface ErrorLogProps {
 
 const OTHER = 'другое'
 
-/** Плоский список тем: названия всех занятий плана без повторов */
-const TOPIC_OPTIONS = SESSION_TITLES
-
 export function ErrorLog({ state, onAddError, onToggleRepeat, onDeleteError }: ErrorLogProps) {
   const open = state.errors.filter((entry) => !entry.done.every(Boolean))
   const closed = state.errors.filter((entry) => entry.done.every(Boolean))
+  // Темы — названия занятий итогового плана без повторов: правки владельца попадают в список
+  const topics = [...new Set(planOf(state).sessions.map((session) => session.title))]
 
   return (
     <section className="page-section" aria-labelledby="errors-title">
@@ -27,7 +26,7 @@ export function ErrorLog({ state, onAddError, onToggleRepeat, onDeleteError }: E
           Каждая запись возвращается дважды: через 3 дня и через 14. Наступившие повторы видны на обзоре в «К повтору сегодня».
         </p>
       </div>
-      <ErrorForm onAddError={onAddError} />
+      <ErrorForm topics={topics} onAddError={onAddError} />
       {open.length === 0 && closed.length === 0 ? (
         <p className="error-log__empty">Записей пока нет.</p>
       ) : (
@@ -46,10 +45,11 @@ export function ErrorLog({ state, onAddError, onToggleRepeat, onDeleteError }: E
 }
 
 interface ErrorFormProps {
+  topics: string[]
   onAddError: (topic: string, text: string, date: string) => void
 }
 
-function ErrorForm({ onAddError }: ErrorFormProps) {
+function ErrorForm({ topics, onAddError }: ErrorFormProps) {
   const [topic, setTopic] = useState(OTHER)
   const [customTopic, setCustomTopic] = useState('')
   const [text, setText] = useState('')
@@ -80,7 +80,7 @@ function ErrorForm({ onAddError }: ErrorFormProps) {
         </label>
         <select className="error-form__input" id="error-topic" value={topic} onChange={(event) => setTopic(event.target.value)}>
           <option value={OTHER}>{OTHER}</option>
-          {TOPIC_OPTIONS.map((option) => (
+          {topics.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>

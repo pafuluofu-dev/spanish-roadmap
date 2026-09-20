@@ -1,0 +1,154 @@
+/* Редактор плана: панель режима над блоками, ряд кнопок-инструментов у недели и занятия,
+   формы недели и занятия. Всё это рендерится только в режиме редактирования — вне его страница не меняется. */
+
+.plan-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+.plan-editor__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Кнопка «+ Добавить неделю» внизу блока — элемент сетки .weeks, не тянется на всю ширину */
+.weeks__add {
+  justify-self: start;
+}
+
+/* Ряд инструментов: у недели — под заголовком, у занятия — последней строкой карточки */
+.edit-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.edit-tools--folder {
+  padding: 0 0.875rem 0.625rem;
+}
+
+.edit-tools--node {
+  grid-column: 2 / -1;
+}
+
+.edit-tools--rest {
+  grid-column: 1 / -1;
+}
+
+/* Зона нажатия ≥ 2rem, как у .link-button; иконочные кнопки квадратные */
+.edit-tools__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-control);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.edit-tools__button:hover {
+  border-color: var(--color-text-muted);
+}
+
+.edit-tools__button:disabled {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+}
+
+/* Первый узел обмена выбран — кнопка «⇄» подсвечена, пока не выбран второй */
+.edit-tools__button--active {
+  background: var(--gradient-primary-strong);
+  border-color: transparent;
+  color: var(--color-on-accent);
+}
+
+/* Формы — на месте занятия (li с формой внутри) и под заголовком недели; поля как у .reserve-form */
+.node-editor,
+.folder-editor {
+  padding: 0.75rem 0.875rem;
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.node-editor:first-child {
+  border-block-start: 0;
+}
+
+.node-editor__form,
+.folder-editor {
+  display: grid;
+  gap: var(--spacing-sm);
+}
+
+/* Форма новой недели стоит отдельной карточкой внизу блока */
+.folder-editor--card {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.node-editor__title,
+.folder-editor__title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.node-editor__row,
+.folder-editor__row {
+  display: grid;
+  gap: var(--spacing-sm) var(--spacing-md);
+}
+
+.node-editor__field,
+.folder-editor__field {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.node-editor__label,
+.folder-editor__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.node-editor__input,
+.folder-editor__input {
+  min-height: 2.25rem;
+  width: 100%;
+  padding: var(--spacing-xs) 0.625rem;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  resize: vertical;
+}
+
+.node-editor__hint,
+.folder-editor__hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.node-editor__actions,
+.folder-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 48rem) {
+  .node-editor__row,
+  .folder-editor__row {
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  }
+}

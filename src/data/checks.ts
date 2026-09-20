@@ -1,8 +1,10 @@
-import { PASS_THRESHOLD, type Session, type Week } from './plan'
+import { baseWeekNumber, PASS_THRESHOLD, type Session, type Week } from './plan'
 
 export interface Check {
   id: string
   date: string
+  /** Тест недели или рубеж блока — по нему календарь отбирает ромбы */
+  kind: 'check' | 'exam'
   title: string
   /** Что проверяется */
   scope: string
@@ -28,18 +30,24 @@ const SCOPE_BY_WEEK: Record<number, string> = {
   12: 'о себе, быт, вопросы без подготовки — итог A1',
 }
 
-/** Проверки — субботние занятия плана: тест недели или рубеж блока. Даты — из плана, поэтому сдвигаются вместе с датой начала */
+/** Проверки — субботние занятия плана: тест недели или рубеж блока. Даты — из плана, поэтому сдвигаются вместе с датой начала.
+    Номер недели в заголовке — позиционный, номер рубежа — порядковый среди рубежей; «что должно получаться» —
+    по исходному номеру встроенной недели, у своих недель — название занятия */
 export function buildChecks(sessions: Session[], weeks: Week[]): Check[] {
+  let exams = 0
   return sessions
-    .filter((session) => session.kind === 'check' || session.kind === 'exam')
+    .filter((session): session is Session & { kind: 'check' | 'exam' } => session.kind === 'check' || session.kind === 'exam')
     .map((session) => {
       const week = weeks.find((item) => item.sessions.includes(session))
       const n = week?.n ?? 0
+      const base = week ? baseWeekNumber(week.id) : undefined
+      if (session.kind === 'exam') exams += 1
       return {
         id: session.id,
         date: session.date,
-        title: session.kind === 'exam' ? `Рубеж ${Math.ceil(n / 4)}` : `Тест недели ${n}`,
-        scope: SCOPE_BY_WEEK[n] ?? session.title,
+        kind: session.kind,
+        title: session.kind === 'exam' ? `Рубеж ${exams}` : `Тест недели ${n}`,
+        scope: (base === undefined ? undefined : SCOPE_BY_WEEK[base]) ?? session.title,
         format: session.kind === 'exam' ? 'три части по 3 минуты на диктофон, 60 мин с разбором' : 'повтор недели + тест самому себе, 45 мин',
         threshold: PASS_THRESHOLD,
       }

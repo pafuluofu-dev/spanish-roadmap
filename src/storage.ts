@@ -2,6 +2,7 @@ import type { UserNote } from './data/notebook'
 import { DEFAULT_START } from './data/plan'
 import type { TheoryState } from './data/theory'
 import { parseISO, toISO } from './dates'
+import { EMPTY_EDITS, sanitizePlanEdits, type PlanEdits } from './planEdits'
 
 export type { UserNote } from './data/notebook'
 
@@ -54,6 +55,8 @@ export interface AppState {
   planStart: string
   /** Свои заметки владельца — страница «Заметки» */
   notes: UserNote[]
+  /** Правки плана — наложение поверх src/data/plan.ts; применяются при чтении */
+  planEdits: PlanEdits
 }
 
 export const EMPTY_STATE: AppState = {
@@ -65,6 +68,7 @@ export const EMPTY_STATE: AppState = {
   lectures: {},
   planStart: DEFAULT_START,
   notes: [],
+  planEdits: EMPTY_EDITS,
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -165,6 +169,8 @@ export function sanitizeState(raw: unknown): AppState {
     // Тоже появилось позже первого релиза: у старых копий нет — план идёт от даты по умолчанию
     planStart: sanitizePlanStart(raw.planStart),
     notes: sanitizeNotes(raw.notes),
+    // Старые копии без поля читаются как «правок нет»
+    planEdits: sanitizePlanEdits(raw.planEdits),
   }
 }
 

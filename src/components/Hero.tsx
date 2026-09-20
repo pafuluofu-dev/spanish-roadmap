@@ -1,5 +1,5 @@
 import { PLANNED_HOURS } from '../data/plan'
-import { daysUntil, fmtDateYear, fmtHours } from '../dates'
+import { daysUntil, fmtDateYear, fmtHours, fmtWeeks } from '../dates'
 import { overallProgress, percentOf, planOf } from '../progress'
 import type { AppState } from '../storage'
 import { AnimatedNumber } from './AnimatedNumber'
@@ -14,7 +14,7 @@ export function Hero({ state }: HeroProps) {
   const percent = percentOf(progress)
 
   const stats: { value: number; format?: (value: number) => string; unit: string; label: string }[] = [
-    { value: daysUntil(plan.goal), unit: 'дн', label: `до конца 12 недель · ${fmtDateYear(plan.goal)}` },
+    { value: daysUntil(plan.goal), unit: 'дн', label: `до конца ${fmtWeeks(plan.weeks.length)} · ${fmtDateYear(plan.goal)}` },
     {
       value: progress.doneMinutes,
       format: (minutes) => fmtHours(minutes / 60),

@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { DEFAULT_START } from '../data/plan'
-import { fmtDateYear, fmtWeekday, parseISO, toISO } from '../dates'
+import { fmtDateYear, fmtWeekday, fmtWeeks, parseISO, toISO } from '../dates'
 
 interface PlanStartSectionProps {
   start: string
   goal: string
+  /** Недель в итоговом плане — владелец мог добавить или удалить неделю */
+  weeks: number
   onChange: (start: string) => void
 }
 
 /** Дата начала плана: от неё считаются все занятия, тесты и календарь; галочки привязаны к id занятий и не теряются */
-export function PlanStartSection({ start, goal, onChange }: PlanStartSectionProps) {
+export function PlanStartSection({ start, goal, weeks, onChange }: PlanStartSectionProps) {
   const [value, setValue] = useState(start)
   const valid = /^\d{4}-\d{2}-\d{2}$/.test(value) && toISO(parseISO(value)) === value
   const notMonday = parseISO(start).getDay() !== 1
@@ -22,7 +24,7 @@ export function PlanStartSection({ start, goal, onChange }: PlanStartSectionProp
           <span className="section-fold__hint" aria-hidden="true" />
         </summary>
         <p className="section-lead section-fold__lead">
-          Двенадцать недель считаются от понедельника первой недели. Поменяйте дату — сдвинутся все занятия, тесты, рубежи и календарь; галочки и
+          {fmtWeeks(weeks)} считаются от понедельника первой недели. Поменяйте дату — сдвинутся все занятия, тесты, рубежи и календарь; галочки и
           результаты останутся на своих занятиях.
         </p>
         <form
