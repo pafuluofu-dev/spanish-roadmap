@@ -4,7 +4,7 @@ import { PASS_THRESHOLD } from '../data/plan'
 import { testsFor } from '../data/testBank'
 import { fmtDateYear } from '../dates'
 import { planOf } from '../progress'
-import type { AppState, CheckResult } from '../storage'
+import type { AppState, CheckResult, TaskMark } from '../storage'
 import { ErrorLog } from './ErrorLog'
 import { PrintSheet } from './PrintSheet'
 import { TestTasksList } from './TestTasksList'
@@ -13,12 +13,13 @@ interface ChecksPageProps {
   state: AppState
   onSaveResult: (id: string, score: number, note: string) => void
   onClearResult: (id: string) => void
+  onMarkTask: (key: string, mark: TaskMark | null) => void
   onAddError: (topic: string, text: string, date: string) => void
   onToggleRepeat: (id: string, index: 0 | 1) => void
   onDeleteError: (id: string) => void
 }
 
-export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onToggleRepeat, onDeleteError }: ChecksPageProps) {
+export function ChecksPage({ state, onSaveResult, onClearResult, onMarkTask, onAddError, onToggleRepeat, onDeleteError }: ChecksPageProps) {
   const plan = planOf(state)
   return (
     <main className="checks-page">
@@ -26,7 +27,7 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
         <p className="eyebrow">Суббота — тест самому себе · порог {PASS_THRESHOLD} %</p>
         <h1 className="page-head__title">Тесты недели и рубежи</h1>
         <p className="page-head__lead">
-          Каждую субботу — без новой грамматики: повтор недели и небольшой тест самому себе вслух, лучше на диктофон. Баллы 0–100 ставите сами. Раз в
+          Каждую субботу — без новой грамматики: повтор недели и небольшой тест самому себе вслух, лучше на диктофон. Каждое задание отмечаете кнопкой — получилось, наполовину или нет, — и балл теста складывается сам. Раз в
           четыре недели — рубеж блока. Ниже {PASS_THRESHOLD} % — темы недели повторяются на следующей, а фразы уходят в журнал. Под каждым тестом —
           задания с ответами; их можно распечатать листом без ответов, в PDF или на принтер.
         </p>
@@ -44,8 +45,10 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
                 key={`${check.id}-${result ? 'filled' : 'empty'}`}
                 check={check}
                 result={result}
+                marks={state.taskMarks}
                 onSaveResult={onSaveResult}
                 onClearResult={onClearResult}
+                onMarkTask={onMarkTask}
               />
             )
           })}
@@ -56,10 +59,18 @@ export function ChecksPage({ state, onSaveResult, onClearResult, onAddError, onT
   )
 }
 
+interface TestTasksProps {
+  checkId: string
+  threshold: number
+  marks: Record<string, TaskMark>
+  onMarkTask: (key: string, mark: TaskMark | null) => void
+  onApplyScore: (percent: number) => void
+}
+
 /* Задания шире формата: в check.format записано, как проводить сам тест (45 минут вслух),
    а здесь лежат все задания по теме недели — с ответами, для тренировки. Свёрнуты, ответ у каждого
-   под своей кнопкой. Ничего не сохраняет. */
-function TestTasks({ checkId }: { checkId: string }) {
+   под своей кнопкой. Сохраняются только отметки заданий — из них складывается балл. */
+function TestTasks({ checkId, threshold, marks, onMarkTask, onApplyScore }: TestTasksProps) {
   const items = testsFor(checkId)
   if (items.length === 0) return null
   const tasks = items.filter((item) => item.kind === 'task').length
@@ -71,7 +82,7 @@ function TestTasks({ checkId }: { checkId: string }) {
         Открыть задания · {tasks}
         {speak > 0 && ` + ${speak} вслух`}
       </summary>
-      <TestTasksList items={items} />
+      <TestTasksList checkId={checkId} items={items} marks={marks} onMark={onMarkTask} threshold={threshold} onApplyScore={onApplyScore} />
     </details>
   )
 }
@@ -79,11 +90,13 @@ function TestTasks({ checkId }: { checkId: string }) {
 interface CheckCardProps {
   check: Check
   result: CheckResult | undefined
+  marks: Record<string, TaskMark>
   onSaveResult: (id: string, score: number, note: string) => void
   onClearResult: (id: string) => void
+  onMarkTask: (key: string, mark: TaskMark | null) => void
 }
 
-function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProps) {
+function CheckCard({ check, result, marks, onSaveResult, onClearResult, onMarkTask }: CheckCardProps) {
   const passed = result && result.score >= check.threshold
   const status = result ? (passed ? 'сдано' : 'не сдано') : 'не проводилась'
   const statusModifier = result ? (passed ? 'badge--passed' : 'badge--failed') : 'badge--pending'
@@ -91,6 +104,8 @@ function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProp
   const [note, setNote] = useState(result?.note ?? '')
   // Пока лист в DOM, кнопка заблокирована: второй клик во время открытого диалога печати ни к чему
   const [printing, setPrinting] = useState(false)
+  // Раскрывается сама, когда балл переносят из подсчёта: иначе непонятно, куда он уехал
+  const [formOpen, setFormOpen] = useState(false)
   const items = testsFor(check.id)
   const scoreId = `${check.id}-score`
   const noteId = `${check.id}-noteinput`
@@ -111,7 +126,16 @@ function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProp
         <span className={`badge ${statusModifier}`}>{status}</span>
       </h3>
       <p className="check-card__scope">{check.scope}</p>
-      <TestTasks checkId={check.id} />
+      <TestTasks
+        checkId={check.id}
+        threshold={check.threshold}
+        marks={marks}
+        onMarkTask={onMarkTask}
+        onApplyScore={(percent) => {
+          setScore(String(percent))
+          setFormOpen(true)
+        }}
+      />
       {items.length > 0 && (
         <p className="check-card__actions">
           <button type="button" className="button" disabled={printing} onClick={() => setPrinting(true)}>
@@ -129,7 +153,7 @@ function CheckCard({ check, result, onSaveResult, onClearResult }: CheckCardProp
           {result.note && <span className="check-card__note">{result.note}</span>}
         </p>
       )}
-      <details className="check-card__form-fold">
+      <details className="check-card__form-fold" open={formOpen} onToggle={(event) => setFormOpen(event.currentTarget.open)}>
         <summary className="check-card__form-summary">{result ? 'Изменить результат' : 'Записать результат'}</summary>
         <form
           className="check-form"
