@@ -118,10 +118,13 @@
   color: var(--color-block-b-text);
 }
 
+/* Отметка по умолчанию: вдавленная и нейтральная — это состояние покоя, а не вынесенный вердикт,
+   поэтому без жирного и без своего цвета, в отличие от «получилось» и «?» */
 .test-mark--fail.test-mark--active {
-  background: var(--color-surface);
+  background: var(--color-background);
   border-color: var(--color-text-muted);
   color: var(--color-text);
+  font-weight: 400;
 }
 
 /* Итог под списком заданий: процент, из чего он сложился и перенос в форму результата */
@@ -140,15 +143,6 @@
 
 .test-score--passed {
   border-inline-start-color: var(--color-success);
-}
-
-/* Подсказка вместо итога — обычная строка, а не коробка: рамка тут читалась бы как рамка панели */
-.test-score--empty {
-  padding: 0;
-  background: none;
-  border: 0;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
 }
 
 .test-score__value {
