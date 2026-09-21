@@ -19,6 +19,9 @@
   --color-block-b-text: #e9c25a;
   --color-block-b-surface: #3b2f10;
   --color-success: #7fb069;
+  /* Шкала отметок заданий: жёлтый и красный — те же, что у блоков B и A */
+  --color-warn: var(--color-block-b-text);
+  --color-danger: var(--color-block-a-text);
   --color-focus: #e9c25a;
   --color-on-accent: #1a1412;
   --color-border-input: #7d6d61;
@@ -76,6 +79,8 @@
   --color-block-b-text: #6e5006;
   --color-block-b-surface: #f8edcc;
   --color-success: #2f6b0a;
+  --color-warn: var(--color-block-b-text);
+  --color-danger: var(--color-block-a-text);
   --color-focus: #9c2a26;
   --color-on-accent: #ffffff;
   --color-border-input: #8a7a6c;

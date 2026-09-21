@@ -74,8 +74,8 @@
   line-height: 1.5;
 }
 
-/* Три кнопки под заданием: получилось · ? · не получилось. Неактивные — рамкой, активная — заливкой
-   своего цвета. «Не получилось» приглушённое, а не красное: это рабочая отметка, а не приговор. */
+/* Три кнопки под заданием: получилось · ? · не получилось — зелёная, жёлтая и красная шкала.
+   Неактивные — серой рамкой; активная поднимается на светлую подложку и красится своим цветом. */
 .test-marks {
   display: flex;
   flex-wrap: wrap;
@@ -113,18 +113,15 @@
 }
 
 .test-mark--half.test-mark--active {
-  background: var(--color-block-b-surface);
-  border-color: var(--color-block-b);
-  color: var(--color-block-b-text);
+  background: var(--color-surface);
+  border-color: var(--color-warn);
+  color: var(--color-warn);
 }
 
-/* Отметка по умолчанию: вдавленная и нейтральная — это состояние покоя, а не вынесенный вердикт,
-   поэтому без жирного и без своего цвета, в отличие от «получилось» и «?» */
 .test-mark--fail.test-mark--active {
-  background: var(--color-background);
-  border-color: var(--color-text-muted);
-  color: var(--color-text);
-  font-weight: 400;
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 /* Итог под списком заданий: процент, из чего он сложился и перенос в форму результата */
